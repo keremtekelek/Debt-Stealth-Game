@@ -22,7 +22,19 @@ public:
 
 protected:
 
+	/*
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCanvasPanel> CanvasPanel_Root;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UProgressBar> Question_Mark;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* ExclamationMarkImage;
+	*/
 	
+public:
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCanvasPanel> CanvasPanel_Root;
 

@@ -77,6 +77,20 @@ enum class EEnemy_HeardReason : uint8
 	
 };
 
+
+// Enum for SuspiciousMeter
+
+UENUM(BlueprintType)
+enum class ESuspiciousMeterType : uint8
+{
+
+	None		  UMETA(DisplayName = "None"),
+	Suspicion	  UMETA(DisplayName = "Suspicion"),
+	Investigation UMETA(DisplayName = "Investigation")
+	
+};
+
+
 // ENUMS ABOUT ENVIRONMENT AI
 
 
@@ -102,12 +116,6 @@ enum class EHeardFootStepMovementType : uint8
 	Sprint		UMETA(DisplayName = "Sprint")
 
 };
-
-
-
-
-
-
 
 
 // DEPRECATED

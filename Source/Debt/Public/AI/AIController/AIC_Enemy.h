@@ -19,6 +19,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Containers/UnrealString.h"
 #include "GameFramework/Character.h"
+#include "UI/SuspiciousMeterCPP.h"
 #include "AIC_Enemy.generated.h"
 
 
@@ -37,6 +38,7 @@ protected:
 
 	// VARIABLES!!!
 
+	
 
 	//Creating BehaviourTree variable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
@@ -61,26 +63,32 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	UAISenseConfig_Prediction* PredictionConfig;
 
+	UPROPERTY(VisibleAnywhere)
+	bool CanTick = false;
+
+
 
 	//FUNCTIONS!!
+
 
 
 	//Tick Function
 	virtual void Tick(float DeltaTime) override;
 
 private:
+
 	//VARIABLES!!!
 
-	// Suspicious Meter Values
-	UPROPERTY()
-	float SuspiciousLevel;
 
+
+	// Suspicious Meter Values
+	
 	UPROPERTY()
 	UWidgetComponent* SuspiciousMeter_WidgetComponent;
 
 	UPROPERTY()
-	UUserWidget* SuspiciousMeter_Widget;
-
+	USuspiciousMeterCPP* SuspiciousMeter_Widget;
+	
 public:
 
 	//VARIABLES!!!
@@ -89,16 +97,18 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	AEnemyBase* Enemy;
 	
-
-
-
-
 	// Timer Variables
 	UPROPERTY(VisibleAnywhere)
 	FTimerHandle SightLostTimerHandle;
 
 	UPROPERTY(VisibleAnywhere)
 	FTimerHandle GetEnemyAndWidgetTimerHandle;
+
+	UPROPERTY(VisibleAnywhere)
+	FTimerHandle DelayHandler;
+
+
+
 
 	//PlayerCharacter Reference
 	UPROPERTY(VisibleAnywhere)
@@ -123,13 +133,11 @@ public:
 	FAISenseID SenseHearID;
 	FAISenseID SensePredictionID;
 
-
-
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ESuspiciousMeterType TypeOfSuspicion;
 
 
 	//FUNCTIONS
-
 
 
 
@@ -144,10 +152,13 @@ public:
 	// Suspicious Meter Functions
 
 	UFUNCTION()
-	void HandleSuspicionMeter(float DeltaTime);
+	void HandleSuspiciousMeter(float DeltaTime);
 
 	UFUNCTION()
-	void ResetSuspicionMeter();
+	void ResetSuspiciousMeter();
+
+	UFUNCTION()
+	void HandleSuspicionLevel(ESuspiciousMeterType SuspicionType,float StimulusStrength);
 	
 
 
@@ -159,6 +170,9 @@ public:
 
 	UFUNCTION()
 	void GetEnemyAndWidget();
+
+	UFUNCTION()
+	void DelayHandlerFunction();
 
 
 	//Sight Sense Functions that handles the EnemySeenDuration for the detection bar and realism

@@ -10,6 +10,10 @@
 
 
 
+
+
+
+
 AAIC_Enemy::AAIC_Enemy()
 {
 
@@ -83,10 +87,12 @@ AAIC_Enemy::AAIC_Enemy()
     Eenemy_AlarmLevel = EEnemy_AlarmLevel::None;
     Eenemy_HeardReason = EEnemy_HeardReason::None;
 
+    TypeOfSuspicion = ESuspiciousMeterType::None;
+
 
 
     //Giving default value of the Variables
-    SuspiciousLevel = 0.0f;
+    
     
    
 }
@@ -107,6 +113,14 @@ void AAIC_Enemy::BeginPlay()
         2.f,
         false
     );
+
+    GetWorldTimerManager().SetTimer(
+        DelayHandler, 
+        this,
+        &AAIC_Enemy::DelayHandlerFunction,
+        2.5f,        
+        false        
+    );
     
 
 }
@@ -117,7 +131,7 @@ void AAIC_Enemy::BeginPlay()
 void AAIC_Enemy::OnPossess(APawn* InPawn)
 {
     Super::OnPossess(InPawn);
-   
+  
 
     if (BT_EnemyAI_Base)
     {   
@@ -138,18 +152,15 @@ void AAIC_Enemy::OnPossess(APawn* InPawn)
 
         }
 
-       
-
         //Defining ENUMS Default Value for Blackboard
         BlackboardComp->SetValueAsObject(FName("SelfActor"), this->GetPawn()); //Temporary
         BlackboardComp->SetValueAsEnum(FName("EnemySitutation"), static_cast<uint8>(EenemySitutation));
         BlackboardComp->SetValueAsEnum(FName("Enemy_InvestigateSuspiciousReason"), static_cast<uint8>(Eenemy_SuspiciousReason));
         BlackboardComp->SetValueAsEnum(FName("EnemyAlarmLevel"), static_cast<uint8>(Eenemy_AlarmLevel));
         BlackboardComp->SetValueAsEnum(FName("Enemy_HeardReason"), static_cast<uint8>(Eenemy_HeardReason));
+        BlackboardComp->SetValueAsEnum(FName("SuspiciousLevel"),0.f);
 
-        //Defining Default Blackboard Values of Suspicious Meter
-        BlackboardComp->SetValueAsFloat(FName("SuspiciousLevel"), 0.0f);
-       
+
     }
 }
 
@@ -159,8 +170,12 @@ void AAIC_Enemy::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    HandleSuspicionMeter(DeltaTime);
+    if (CanTick)
+    {
+        HandleSuspiciousMeter(DeltaTime);
+    }
     
+
 }
 
 // Event OnTargetPerceptionUpdated
@@ -176,14 +191,13 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 // If what is seen is MainCharacter
                 if (Actor == PlayerCharacter)
                 {
+                    TypeOfSuspicion = ESuspiciousMeterType::Suspicion;
 
                     GetWorld()->GetTimerManager().ClearTimer(SightLostTimerHandle);
 
                     BlackboardComp->SetValueAsBool(FName("IsPlayerVisible"), true);
                     BlackboardComp->SetValueAsBool(FName("PlayerLostConfirmed"), false);
                     BlackboardComp->SetValueAsVector(FName("PlayerLastKnownLocation"), Stimulus.StimulusLocation);
-
-
 
                     SetEnemySitutationAs(EEnemySitutation::Alarm);
                     SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::HugeAlarm);
@@ -192,13 +206,12 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 
                     WarnOtherAIs(EEnemySitutation::Alarm, EEnemy_AlarmLevel::HugeAlarm, PlayerCharacter->GetActorLocation(), EEnemy_SuspiciousReason::None);
 
-                    
-
                 }
 
                 // If what is seen is Rock
                 if (Actor->ActorHasTag("ThrowableRock"))
                 {
+                    //TypeOfSuspicion = ESuspiciousMeterType::Investigation;
 
                     SetEnemySitutationAs(EEnemySitutation::Investigate);
                     SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
@@ -221,7 +234,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     // If enemy saw the rock on the Air Condition
                     if (!bHit)
                     {
-                           
+                       //HandleSuspicionLevel(ESuspiciousMeterType::Investigation, 0.1f);
                        DrawDebugSphere(GetWorld(), PlayerCharacter->GetActorLocation(), 15.f, 15, FColor::Blue, false, 5.f, 0, 2.f);
 
                        BlackboardComp->SetValueAsBool(FName("IsRockSeenInTheAir"), true);
@@ -232,6 +245,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     // If enemy saw the rock not on the Air Condition
                      if (bHit)
                      {
+                       //HandleSuspicionLevel(ESuspiciousMeterType::Investigation, 0.f);
                        BlackboardComp->SetValueAsBool(FName("SawRock"), true);
                        BlackboardComp->SetValueAsBool(FName("IsRockSeenInTheAir"), false);
                        BlackboardComp->SetValueAsVector(FName("Investigation_Location"), RockLocation);
@@ -247,6 +261,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
             //If enemy lost the PlayerCharacter, Predict the Player Location
             if (Actor == PlayerCharacter)
             {
+                TypeOfSuspicion = ESuspiciousMeterType::None;
                 BlackboardComp->SetValueAsBool(FName("IsPlayerVisible"), false);
 
 
@@ -267,7 +282,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
             if (Actor->ActorHasTag("ThrowableRock"))
             {
                 //Blackboard->SetValueAsBool(FName("SawRock"), false);
-
+                
             }
         }
     }
@@ -294,7 +309,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     BlackboardComp->SetValueAsEnum(FName("HeardFootStepMovementType"), static_cast<uint8>(EHeardFootStepMovementType::Sprint));
                 }
 
-                UE_LOG(LogTemp, Warning, TEXT("Strength: %f"), Stimulus.Strength);
+                
             }
 
             else if (Stimulus.Tag == "RockSound")
@@ -326,9 +341,9 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
         }
     }
 
+
     //Prediction Sense
-
-
+   
     if (Stimulus.Type == SensePredictionID)
     {
         if (Stimulus.WasSuccessfullySensed())
@@ -350,38 +365,86 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 
 // Suspicious Meter Functions
 
-void AAIC_Enemy::HandleSuspicionMeter(float DeltaTime)
+void AAIC_Enemy::HandleSuspiciousMeter(float DeltaTime)
 {
     float CurrentSuspiciousLevel = BlackboardComp->GetValueAsFloat(FName("SuspiciousLevel"));
+
+    if (TypeOfSuspicion == ESuspiciousMeterType::Suspicion)
+    {
+        if (BlackboardComp->GetValueAsBool(FName("IsPlayerVisible")))
+        {
+
+            float SawPlayerCoefficient = 0.5f;
+            CurrentSuspiciousLevel += DeltaTime * SawPlayerCoefficient;
+        }
+
+        else 
+        {
+            CurrentSuspiciousLevel = FMath::Max(0.0f, CurrentSuspiciousLevel - DeltaTime * 0.2f);
+        }
+
+        CurrentSuspiciousLevel = FMath::Clamp(CurrentSuspiciousLevel, 0.0f, 1.0f);
+        BlackboardComp->SetValueAsFloat(FName("SuspiciousLevel"), CurrentSuspiciousLevel);
+    }
+    
     
 
-    if (BlackboardComp->GetValueAsBool(FName("IsPlayerVisible")))
+    
+    
+    
+    
+    if (CurrentSuspiciousLevel > 0.0f)
     {
-       CurrentSuspiciousLevel += DeltaTime * 0.5f; // Fills up on 2 seconds
+      SuspiciousMeter_WidgetComponent->SetVisibility(true);
+      SuspiciousMeter_WidgetComponent->SetHiddenInGame(false);
+      SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Visible);
+             
+      SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Visible);
+      SuspiciousMeter_Widget->Question_Mark->SetPercent(CurrentSuspiciousLevel);
+ 
     }
+
+    
     else
     {
-        CurrentSuspiciousLevel = FMath::Max(0.0f, CurrentSuspiciousLevel - DeltaTime * 0.2f);
+        SuspiciousMeter_WidgetComponent->SetVisibility(false);
+        SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
+        SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
+
+        SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Hidden);
+        SuspiciousMeter_Widget->Question_Mark->SetPercent(0.0f);
+
     }
-
-    CurrentSuspiciousLevel = FMath::Clamp(CurrentSuspiciousLevel, 0.0f, 1.0f);
-    BlackboardComp->SetValueAsFloat(FName("SuspiciousLevel"), CurrentSuspiciousLevel);
-
-    
     /*
-    // DEBUG PURPOSES
-    FString DebugMessage = FString::Printf(TEXT("Current Value: %.5f"), CurrentSuspiciousLevel);
+    FString DebugMessage = FString::Printf(TEXT("Current: %.5f | Displayed: %.5f"), CurrentSuspiciousLevel, DisplayedSuspiciousLevel);
     UKismetSystemLibrary::PrintString(this, DebugMessage, true, true, FLinearColor::Red, 0.1f);
     */
-    
 }
 
-void AAIC_Enemy::ResetSuspicionMeter()
+
+void AAIC_Enemy::ResetSuspiciousMeter()
 {
     BlackboardComp->SetValueAsFloat(FName("SuspiciousLevel"), 0.0f);
 }
 
 
+void AAIC_Enemy::HandleSuspicionLevel(ESuspiciousMeterType SuspicionType,float StimulusStrength)
+{
+    /*
+    float DeltaTime = GetWorld()->GetDeltaSeconds();
+
+    if (SuspicionType == ESuspiciousMeterType::Suspicion)
+    {
+        SuspiciousLevel += StimulusStrength;
+    }
+    */
+    
+    /*
+    FString DebugMessage = FString::Printf(TEXT("Current Value: %.5f"), SuspiciousLevel);
+    UKismetSystemLibrary::PrintString(this, DebugMessage, true, true, FLinearColor::Red, 0.1f);
+    */
+    
+}
 
 
 
@@ -400,11 +463,15 @@ void AAIC_Enemy::GetEnemyAndWidget()
         SuspiciousMeter_WidgetComponent = Enemy->FindComponentByClass<UWidgetComponent>();
         if (SuspiciousMeter_WidgetComponent)
         {
-            SuspiciousMeter_Widget = SuspiciousMeter_WidgetComponent->GetWidget();
+            UUserWidget* Widget = SuspiciousMeter_WidgetComponent->GetWidget();
+
+            if (Widget)
+            {
+                SuspiciousMeter_Widget = Cast<USuspiciousMeterCPP>(Widget);
+
+            }
         }
     }
-    
-    
 }
 
 
@@ -458,6 +525,12 @@ void AAIC_Enemy::OnSightSeeConfirmShort()
     SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::MiddleAlarm);
     SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::None);
     
+}
+
+void AAIC_Enemy::DelayHandlerFunction()
+{
+    CanTick = true;
+
 }
 
 
