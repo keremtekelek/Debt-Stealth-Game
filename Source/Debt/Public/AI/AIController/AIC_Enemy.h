@@ -158,7 +158,7 @@ public:
 	void ResetSuspiciousMeter();
 
 	UFUNCTION()
-	void HandleSuspicionLevel(ESuspiciousMeterType SuspicionType,float StimulusStrength);
+	void OpenOrCloseWidget(FString TypeQuestionOrExclamation, FString TypeOpenOrClose);
 	
 
 

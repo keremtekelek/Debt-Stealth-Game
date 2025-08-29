@@ -198,14 +198,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     BlackboardComp->SetValueAsBool(FName("IsPlayerVisible"), true);
                     BlackboardComp->SetValueAsBool(FName("PlayerLostConfirmed"), false);
                     BlackboardComp->SetValueAsVector(FName("PlayerLastKnownLocation"), Stimulus.StimulusLocation);
-
-                    SetEnemySitutationAs(EEnemySitutation::Alarm);
-                    SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::HugeAlarm);
-                    SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::None);
-
-
-                    WarnOtherAIs(EEnemySitutation::Alarm, EEnemy_AlarmLevel::HugeAlarm, PlayerCharacter->GetActorLocation(), EEnemy_SuspiciousReason::None);
-
+                    
                 }
 
                 // If what is seen is Rock
@@ -261,7 +254,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
             //If enemy lost the PlayerCharacter, Predict the Player Location
             if (Actor == PlayerCharacter)
             {
-                TypeOfSuspicion = ESuspiciousMeterType::None;
+                
                 BlackboardComp->SetValueAsBool(FName("IsPlayerVisible"), false);
 
 
@@ -367,18 +360,29 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 
 void AAIC_Enemy::HandleSuspiciousMeter(float DeltaTime)
 {
+    bool IsPlayerVisible = BlackboardComp->GetValueAsBool(FName("IsPlayerVisible"));
     float CurrentSuspiciousLevel = BlackboardComp->GetValueAsFloat(FName("SuspiciousLevel"));
+    FVector MainCharacterLocation = PlayerCharacter->GetActorLocation();
+    FVector EnemyLocation = Enemy->GetActorLocation();
+    
 
     if (TypeOfSuspicion == ESuspiciousMeterType::Suspicion)
     {
-        if (BlackboardComp->GetValueAsBool(FName("IsPlayerVisible")))
+        if (IsPlayerVisible == true)
         {
-
             float SawPlayerCoefficient = 0.5f;
             CurrentSuspiciousLevel += DeltaTime * SawPlayerCoefficient;
+
+            if (CurrentSuspiciousLevel >= 1.0f)
+            {
+                SetEnemySitutationAs(EEnemySitutation::Alarm);
+                SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::HugeAlarm);
+                SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::None);
+                WarnOtherAIs(EEnemySitutation::Alarm, EEnemy_AlarmLevel::HugeAlarm, PlayerCharacter->GetActorLocation(), EEnemy_SuspiciousReason::None);
+            }
         }
 
-        else 
+        else if(IsPlayerVisible == false)
         {
             CurrentSuspiciousLevel = FMath::Max(0.0f, CurrentSuspiciousLevel - DeltaTime * 0.2f);
         }
@@ -395,30 +399,24 @@ void AAIC_Enemy::HandleSuspiciousMeter(float DeltaTime)
     
     if (CurrentSuspiciousLevel > 0.0f)
     {
-      SuspiciousMeter_WidgetComponent->SetVisibility(true);
-      SuspiciousMeter_WidgetComponent->SetHiddenInGame(false);
-      SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Visible);
-             
-      SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Visible);
+      OpenOrCloseWidget("question","open");
       SuspiciousMeter_Widget->Question_Mark->SetPercent(CurrentSuspiciousLevel);
  
     }
-
-    
+      
     else
     {
-        SuspiciousMeter_WidgetComponent->SetVisibility(false);
-        SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
-        SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
-
-        SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Hidden);
+        OpenOrCloseWidget("question", "close");
         SuspiciousMeter_Widget->Question_Mark->SetPercent(0.0f);
 
     }
+    
     /*
-    FString DebugMessage = FString::Printf(TEXT("Current: %.5f | Displayed: %.5f"), CurrentSuspiciousLevel, DisplayedSuspiciousLevel);
+     //DEBUG PURPOSES
+    FString DebugMessage = FString::Printf(TEXT("Current: %.5f"), CurrentSuspiciousLevel);
     UKismetSystemLibrary::PrintString(this, DebugMessage, true, true, FLinearColor::Red, 0.1f);
     */
+    
 }
 
 
@@ -428,24 +426,87 @@ void AAIC_Enemy::ResetSuspiciousMeter()
 }
 
 
-void AAIC_Enemy::HandleSuspicionLevel(ESuspiciousMeterType SuspicionType,float StimulusStrength)
+
+void AAIC_Enemy::OpenOrCloseWidget(FString TypeQuestionOrExclamation, FString TypeOpenOrClose)
 {
-    /*
-    float DeltaTime = GetWorld()->GetDeltaSeconds();
-
-    if (SuspicionType == ESuspiciousMeterType::Suspicion)
+    FString OpenOrCloseWidget = TypeOpenOrClose.ToLower();
+    FString WhichWidget = TypeQuestionOrExclamation.ToLower();
+    
+    
+    if (WhichWidget == "question")
     {
-        SuspiciousLevel += StimulusStrength;
-    }
-    */
-    
-    /*
-    FString DebugMessage = FString::Printf(TEXT("Current Value: %.5f"), SuspiciousLevel);
-    UKismetSystemLibrary::PrintString(this, DebugMessage, true, true, FLinearColor::Red, 0.1f);
-    */
-    
-}
+        if (TypeOpenOrClose == "open")
+        {
+            if (SuspiciousMeter_WidgetComponent->IsVisible())
+            {
+                SuspiciousMeter_WidgetComponent->SetVisibility(false);
+                SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
 
+                if (SuspiciousMeter_Widget->GetVisibility() == ESlateVisibility::Visible)
+                {
+                    SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
+                    if (SuspiciousMeter_Widget->ExclamationMarkImage->GetVisibility() == ESlateVisibility::Visible)
+                    {
+                        SuspiciousMeter_Widget->ExclamationMarkImage->SetVisibility(ESlateVisibility::Hidden);
+                    }
+                }
+            }
+            
+            SuspiciousMeter_WidgetComponent->SetVisibility(true);
+            SuspiciousMeter_WidgetComponent->SetHiddenInGame(false);
+            SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Visible);
+            SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Visible);
+        }
+        else if (TypeOpenOrClose == "close")
+        {
+            SuspiciousMeter_WidgetComponent->SetVisibility(false);
+            SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
+            SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
+            SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Hidden);
+        }
+    }
+    else if (WhichWidget == "exclamation")
+    {
+        if (TypeOpenOrClose == "open")
+        {
+            if (SuspiciousMeter_WidgetComponent->IsVisible())
+            {
+                SuspiciousMeter_WidgetComponent->SetVisibility(false);
+                SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
+
+                if (SuspiciousMeter_Widget->GetVisibility() == ESlateVisibility::Visible)
+                {
+                    SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
+                    if (SuspiciousMeter_Widget->Question_Mark->GetVisibility() == ESlateVisibility::Visible)
+                    {
+                        SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Hidden);
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+            
+
+            SuspiciousMeter_WidgetComponent->SetVisibility(true);
+            SuspiciousMeter_WidgetComponent->SetHiddenInGame(false);
+            SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Visible);
+            SuspiciousMeter_Widget->ExclamationMarkImage->SetVisibility(ESlateVisibility::Visible);
+        }
+        else if (TypeOpenOrClose == "close")
+        {
+            SuspiciousMeter_WidgetComponent->SetVisibility(false);
+            SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
+            SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
+            SuspiciousMeter_Widget->ExclamationMarkImage->SetVisibility(ESlateVisibility::Hidden);
+        }
+    }
+}
 
 
 
