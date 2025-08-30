@@ -195,7 +195,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     // Suspicion Type
                     TypeOfSuspicion = ESuspiciousMeterType::Suspicion;
 
-                    GetWorld()->GetTimerManager().ClearTimer(SightLostTimerHandle);
+                    GetWorld()->GetTimerManager().ClearTimer(PlayerSawOrLostTimerHandle);
 
                     BlackboardComp->SetValueAsBool(FName("IsPlayerVisible"), true);
                     BlackboardComp->SetValueAsBool(FName("PlayerLostConfirmed"), false);
@@ -265,13 +265,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 UAISense_Prediction::RequestControllerPredictionEvent(this, Actor, 1.f);
 
 
-                GetWorld()->GetTimerManager().SetTimer(
-                    SightLostTimerHandle,
-                    this,
-                    &AAIC_Enemy::OnSightLostConfirmed,
-                    3.f,
-                    false
-                );
+                
 
             }
 
@@ -387,11 +381,22 @@ void AAIC_Enemy::HandleSuspiciousMeter(float DeltaTime)
             SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::HugeAlarm);
             SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::None);
             WarnOtherAIs(EEnemySitutation::Alarm, EEnemy_AlarmLevel::HugeAlarm, PlayerCharacter->GetActorLocation(), EEnemy_SuspiciousReason::None);
+            PlayerSawOrLostConfirmed("saw", true);
         }
     }
     else if (GetEnemySitutation() == EEnemySitutation::Alarm)
     {
         OpenOrCloseWidget("exclamation", "open");
+
+        if (IsPlayerVisible == false)
+        {
+            if (!GetWorld()->GetTimerManager().IsTimerActive(PlayerSawOrLostTimerHandle))
+            {
+                PlayerSawOrLostTimerDelegate.BindUObject(this, &AAIC_Enemy::PlayerSawOrLostConfirmed, FString("lost"), true);
+                GetWorld()->GetTimerManager().SetTimer(PlayerSawOrLostTimerHandle, PlayerSawOrLostTimerDelegate, 4.3f, false);
+            }
+
+        }
     }
     
     else
@@ -407,6 +412,7 @@ void AAIC_Enemy::HandleSuspiciousMeter(float DeltaTime)
                 SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::HugeAlarm);
                 SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::None);
                 WarnOtherAIs(EEnemySitutation::Alarm, EEnemy_AlarmLevel::HugeAlarm, PlayerCharacter->GetActorLocation(), EEnemy_SuspiciousReason::None);
+                PlayerSawOrLostConfirmed("saw", true);
             }
         }
 
@@ -560,56 +566,58 @@ void AAIC_Enemy::GetEnemyAndWidget()
 
 
 
-void AAIC_Enemy::OnSightLostConfirmed()
-
+void AAIC_Enemy::PlayerSawOrLostConfirmed(FString TypeSawOrLost, bool ChangeItTrueOrFalse)
 {
-    //This is update the "PlayerLostConfirmed" variable on the blackboard after AI's sight lost confirmed
- 
-    BlackboardComp->SetValueAsBool(FName("PlayerSawConfirmed"), false);
-    
+    UE_LOG(LogTemp, Warning, TEXT("Function is working!"))
 
-    if (GetEnemySitutation() == EEnemySitutation::Alarm)
+    FString SightType = TypeSawOrLost.ToLower();
+    bool SightBool = ChangeItTrueOrFalse;
+    bool BB_SawConfirmedValue = BlackboardComp->GetValueAsBool("PlayerSawConfirmed");
+    bool BB_LostConfirmedValue = BlackboardComp->GetValueAsBool("PlayerLostConfirmed");
+
+
+    if (SightType == "saw")
     {
-       BlackboardComp->SetValueAsBool(FName("PlayerLostConfirmed"), true);
-        
+        if (SightBool == true)
+        {
+            if (BB_LostConfirmedValue == true)
+            {
+                BlackboardComp->SetValueAsBool(FName("PlayerLostConfirmed"), false);
+                BlackboardComp->SetValueAsBool(FName("PlayerSawConfirmed"), true);
+            }
+            else
+            {
+                BlackboardComp->SetValueAsBool(FName("PlayerSawConfirmed"), true);
+            }
+        }
+        else
+        {
+            BlackboardComp->SetValueAsBool(FName("PlayerSawConfirmed"), false);
+        }
     }
-
-
+    else if (SightType == "lost")
+    {
+        if (SightBool == true)
+        {
+            if (BB_SawConfirmedValue == true)
+            {
+                BlackboardComp->SetValueAsBool(FName("PlayerSawConfirmed"), false);
+                BlackboardComp->SetValueAsBool(FName("PlayerLostConfirmed"), true);
+            }
+            else
+            {
+                BlackboardComp->SetValueAsBool(FName("PlayerLostConfirmed"), true);
+            }
+             
+        }
+        else
+        {
+            BlackboardComp->SetValueAsBool(FName("PlayerLostConfirmed"), false);
+        }
+    }
 }
 
-//Confirms the Player, 
-void AAIC_Enemy::OnSightSeeConfirmedLong()
-{
-    
-    GetWorld()->GetTimerManager().ClearTimer(SightLostTimerHandle);
 
-    BlackboardComp->SetValueAsObject(FName("PlayerCharacter"), PlayerCharacter);
-    BlackboardComp->SetValueAsBool(FName("PlayerSawConfirmed"), true);
-
-    
-    SetEnemySitutationAs(EEnemySitutation::Alarm);
-    SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::HugeAlarm);
-    SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::None);
-    
-    
-    WarnOtherAIs(EEnemySitutation::Alarm, EEnemy_AlarmLevel::HugeAlarm, PlayerCharacter->GetActorLocation(), EEnemy_SuspiciousReason::None);
-   
-}
-
-//Didn't confirmed but it cost the MiddleAlarm
-void AAIC_Enemy::OnSightSeeConfirmShort()
-{
-    GetWorld()->GetTimerManager().ClearTimer(SightLostTimerHandle);
-
-   
-   BlackboardComp->SetValueAsBool(FName("PlayerSawConfirmed"), false);
-    
-
-    SetEnemySitutationAs(EEnemySitutation::Alarm);
-    SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::MiddleAlarm);
-    SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::None);
-    
-}
 
 void AAIC_Enemy::DelayHandlerFunction()
 {

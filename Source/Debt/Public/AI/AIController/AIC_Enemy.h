@@ -99,7 +99,7 @@ public:
 	
 	// Timer Variables
 	UPROPERTY(VisibleAnywhere)
-	FTimerHandle SightLostTimerHandle;
+	FTimerHandle PlayerSawOrLostTimerHandle;
 
 	UPROPERTY(VisibleAnywhere)
 	FTimerHandle GetEnemyAndWidgetTimerHandle;
@@ -107,6 +107,9 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	FTimerHandle DelayHandler;
 
+	//Timer Delegates
+	//UPROPERTY(VisibleAnywhere)
+	FTimerDelegate PlayerSawOrLostTimerDelegate;
 
 
 
@@ -172,7 +175,7 @@ public:
 
 	// Timer Functions
 	UFUNCTION()
-	void OnSightLostConfirmed();
+	void PlayerSawOrLostConfirmed(FString TypeSawOrLost,bool ChangeItTrueOrFalse);
 
 	UFUNCTION()
 	void GetEnemyAndWidget();
@@ -182,11 +185,7 @@ public:
 
 
 	//Sight Sense Functions that handles the EnemySeenDuration for the detection bar and realism
-	UFUNCTION()
-	void OnSightSeeConfirmedLong();
-
-	UFUNCTION()
-	void OnSightSeeConfirmShort();
+	
 
 
 

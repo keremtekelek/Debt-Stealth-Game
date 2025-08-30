@@ -14,7 +14,7 @@ AEnemyBase::AEnemyBase()
 		WidgetComp->SetupAttachment(GetMesh());
 		WidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
 		WidgetComp->SetDrawSize(FVector2D(100, 100));
-		WidgetComp->SetRelativeLocation(FVector(0, 0, 180));
+		WidgetComp->SetRelativeLocation(FVector(0, 10, 200));
 		WidgetComp->SetVisibility(false);
 		WidgetComp->SetHiddenInGame(true);
 		static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass{ TEXT("/Game/01_MyContent/Blueprints/UI/WBP_SuspiciousMeter") };
