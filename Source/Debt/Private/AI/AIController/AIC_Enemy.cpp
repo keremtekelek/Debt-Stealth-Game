@@ -175,6 +175,7 @@ void AAIC_Enemy::Tick(float DeltaTime)
         HandleSuspiciousMeter(DeltaTime);
     }
     
+    
 
 }
 
@@ -191,6 +192,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 // If what is seen is MainCharacter
                 if (Actor == PlayerCharacter)
                 {
+                    // Suspicion Type
                     TypeOfSuspicion = ESuspiciousMeterType::Suspicion;
 
                     GetWorld()->GetTimerManager().ClearTimer(SightLostTimerHandle);
@@ -203,15 +205,16 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 
                 // If what is seen is Rock
                 if (Actor->ActorHasTag("ThrowableRock"))
-                {
-                    //TypeOfSuspicion = ESuspiciousMeterType::Investigation;
+                {   
+                    // Suspicion Type
+                    TypeOfSuspicion = ESuspiciousMeterType::Investigation;
 
                     SetEnemySitutationAs(EEnemySitutation::Investigate);
                     SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
                     SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Saw);
 
 
-                    // WarnOtherAIs(EEnemySitutation::Alarm, EEnemy_AlarmLevel::HugeAlarm, PlayerCharacter->GetActorLocation(), EEnemy_SuspiciousReason::None);
+                    
 
 
                      // If Rock seen in the Air, PlayerCharacter location will be copmrimised!
@@ -283,10 +286,13 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
     //Hear Sense
     if (Stimulus.Type == SenseHearID)
     {
+        
         if (Stimulus.WasSuccessfullySensed())
         {
             if (Stimulus.Tag == "FootStepSound.Walk" || Stimulus.Tag == "FootStepSound.Sprint")
             {
+                TypeOfSuspicion = ESuspiciousMeterType::Investigation;
+
                 SetEnemySitutationAs(EEnemySitutation::Investigate);
                 SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
                 SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Heard);
@@ -295,11 +301,13 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 if (Stimulus.Tag == "FootStepSound.Walk")
                 {
                     BlackboardComp->SetValueAsEnum(FName("HeardFootStepMovementType"), static_cast<uint8>(EHeardFootStepMovementType::Walk));
+                    
                 }
 
                 if(Stimulus.Tag == "FootStepSound.Sprint")
                 {
                     BlackboardComp->SetValueAsEnum(FName("HeardFootStepMovementType"), static_cast<uint8>(EHeardFootStepMovementType::Sprint));
+                    
                 }
 
                 
@@ -307,6 +315,8 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 
             else if (Stimulus.Tag == "RockSound")
             {
+                TypeOfSuspicion = ESuspiciousMeterType::Investigation;
+
                 SetEnemySitutationAs(EEnemySitutation::Investigate);
                 SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
                 SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Heard);
@@ -365,8 +375,26 @@ void AAIC_Enemy::HandleSuspiciousMeter(float DeltaTime)
     FVector MainCharacterLocation = PlayerCharacter->GetActorLocation();
     FVector EnemyLocation = Enemy->GetActorLocation();
     
+    if (GetEnemySitutation() == EEnemySitutation::Investigate)
+    {
+        OpenOrCloseWidget("question", "open");
+        SuspiciousMeter_Widget->SetColorAndOpacity(FLinearColor::Yellow);
+        SuspiciousMeter_Widget->Question_Mark->SetPercent(1.f);
 
-    if (TypeOfSuspicion == ESuspiciousMeterType::Suspicion)
+        if (IsPlayerVisible)
+        {
+            SetEnemySitutationAs(EEnemySitutation::Alarm);
+            SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::HugeAlarm);
+            SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::None);
+            WarnOtherAIs(EEnemySitutation::Alarm, EEnemy_AlarmLevel::HugeAlarm, PlayerCharacter->GetActorLocation(), EEnemy_SuspiciousReason::None);
+        }
+    }
+    else if (GetEnemySitutation() == EEnemySitutation::Alarm)
+    {
+        OpenOrCloseWidget("exclamation", "open");
+    }
+    
+    else
     {
         if (IsPlayerVisible == true)
         {
@@ -382,40 +410,33 @@ void AAIC_Enemy::HandleSuspiciousMeter(float DeltaTime)
             }
         }
 
-        else if(IsPlayerVisible == false)
+        else if (IsPlayerVisible == false)
         {
             CurrentSuspiciousLevel = FMath::Max(0.0f, CurrentSuspiciousLevel - DeltaTime * 0.2f);
         }
 
-        CurrentSuspiciousLevel = FMath::Clamp(CurrentSuspiciousLevel, 0.0f, 1.0f);
-        BlackboardComp->SetValueAsFloat(FName("SuspiciousLevel"), CurrentSuspiciousLevel);
-    }
-    
-    
+        if (CurrentSuspiciousLevel > 0.0f)
+        {
+            OpenOrCloseWidget("question", "open");
+            SuspiciousMeter_Widget->SetColorAndOpacity(FLinearColor::White);
+            SuspiciousMeter_Widget->Question_Mark->SetPercent(CurrentSuspiciousLevel);
+        }
 
-    
-    
-    
-    
-    if (CurrentSuspiciousLevel > 0.0f)
-    {
-      OpenOrCloseWidget("question","open");
-      SuspiciousMeter_Widget->Question_Mark->SetPercent(CurrentSuspiciousLevel);
- 
-    }
-      
-    else
-    {
-        OpenOrCloseWidget("question", "close");
-        SuspiciousMeter_Widget->Question_Mark->SetPercent(0.0f);
-
+        else
+        {
+            OpenOrCloseWidget("question", "close");
+            SuspiciousMeter_Widget->Question_Mark->SetPercent(0.0f);
+        }
     }
     
     /*
-     //DEBUG PURPOSES
+    //DEBUG PURPOSES
     FString DebugMessage = FString::Printf(TEXT("Current: %.5f"), CurrentSuspiciousLevel);
     UKismetSystemLibrary::PrintString(this, DebugMessage, true, true, FLinearColor::Red, 0.1f);
     */
+     
+    CurrentSuspiciousLevel = FMath::Clamp(CurrentSuspiciousLevel, 0.0f, 1.0f);
+    BlackboardComp->SetValueAsFloat(FName("SuspiciousLevel"), CurrentSuspiciousLevel);
     
 }
 
@@ -481,15 +502,17 @@ void AAIC_Enemy::OpenOrCloseWidget(FString TypeQuestionOrExclamation, FString Ty
                     {
                         SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Hidden);
                     }
-                    else
-                    {
-                        return;
-                    }
+                    
+
+                    //else
+                    //{
+                    //    return;
+                    //}
                 }
-                else
-                {
-                    return;
-                }
+                //else
+                //{
+                 //   return;
+                //}
             }
             
 
@@ -839,6 +862,9 @@ void AAIC_Enemy::SetEnemyHeardReasonAs(EEnemy_HeardReason NewHeardReason)
     uint8 CurrentHeardReason = static_cast<uint8>(GetEnemyHeardReason());
     uint8 DesiredHeardReason = static_cast<uint8>(NewHeardReason);
 
+    BlackboardComp->SetValueAsEnum(FName("Enemy_HeardReason"), static_cast<uint8>(NewHeardReason));
+
+    // Can be Change!
     if (GetEnemySuspiciousReason() == EEnemy_SuspiciousReason::Heard)
     {
         if (CurrentHeardReason > DesiredHeardReason)
@@ -854,6 +880,8 @@ void AAIC_Enemy::SetEnemyHeardReasonAs(EEnemy_HeardReason NewHeardReason)
     {
         return;
     }
+    
+    
 
 }
 

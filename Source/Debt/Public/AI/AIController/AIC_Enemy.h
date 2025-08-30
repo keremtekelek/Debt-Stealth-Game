@@ -136,6 +136,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESuspiciousMeterType TypeOfSuspicion;
 
+	
+
+	
+
+	
+
 
 	//FUNCTIONS
 
