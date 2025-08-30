@@ -106,21 +106,9 @@ void AAIC_Enemy::BeginPlay()
 
     
 
-    GetWorld()->GetTimerManager().SetTimer(
-        GetEnemyAndWidgetTimerHandle,
-        this,
-        &AAIC_Enemy::GetEnemyAndWidget,
-        2.f,
-        false
-    );
+    GetWorld()->GetTimerManager().SetTimer(GetEnemyAndWidgetTimerHandle,this,&AAIC_Enemy::GetEnemyAndWidget,2.f,false);
 
-    GetWorldTimerManager().SetTimer(
-        DelayHandler, 
-        this,
-        &AAIC_Enemy::DelayHandlerFunction,
-        2.5f,        
-        false        
-    );
+    GetWorldTimerManager().SetTimer(DelayHandler,this,&AAIC_Enemy::DelayHandlerFunction,2.5f,false);
     
 
 }
@@ -214,8 +202,8 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Saw);
 
 
-                    
-
+                    BlackboardComp->SetValueAsBool(FName("SawRock"), true);
+                    UE_LOG(LogTemp, Warning, TEXT("Rock Actor: %s"), *Actor->GetName());
 
                      // If Rock seen in the Air, PlayerCharacter location will be copmrimised!
 
@@ -234,15 +222,15 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                        DrawDebugSphere(GetWorld(), PlayerCharacter->GetActorLocation(), 15.f, 15, FColor::Blue, false, 5.f, 0, 2.f);
 
                        BlackboardComp->SetValueAsBool(FName("IsRockSeenInTheAir"), true);
-                       BlackboardComp->SetValueAsBool(FName("SawRock"), true);
-                       BlackboardComp->SetValueAsVector(FName("PredictedLocation"), PlayerCharacter->GetActorLocation());
+                       //BlackboardComp->SetValueAsBool(FName("SawRock"), true);
+                       BlackboardComp->SetValueAsVector(FName("Investigation_Location"), PlayerCharacter->GetActorLocation());
                     }
 
                     // If enemy saw the rock not on the Air Condition
                      if (bHit)
                      {
                        //HandleSuspicionLevel(ESuspiciousMeterType::Investigation, 0.f);
-                       BlackboardComp->SetValueAsBool(FName("SawRock"), true);
+                       //BlackboardComp->SetValueAsBool(FName("SawRock"), true);
                        BlackboardComp->SetValueAsBool(FName("IsRockSeenInTheAir"), false);
                        BlackboardComp->SetValueAsVector(FName("Investigation_Location"), RockLocation);
 
@@ -257,21 +245,23 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
             //If enemy lost the PlayerCharacter, Predict the Player Location
             if (Actor == PlayerCharacter)
             {
-                
                 BlackboardComp->SetValueAsBool(FName("IsPlayerVisible"), false);
-
 
                 //Prediction 
                 UAISense_Prediction::RequestControllerPredictionEvent(this, Actor, 1.f);
-
-
                 
-
             }
 
             if (Actor->ActorHasTag("ThrowableRock"))
             {
-                //Blackboard->SetValueAsBool(FName("SawRock"), false);
+                
+                if (!Stimulus.IsActive())
+                {
+                   // UE_LOG(LogTemp, Warning, TEXT("TAS BITTI"))
+                    BlackboardComp->SetValueAsBool(FName("SawRock"), false);
+                }
+                
+                
                 
             }
         }
@@ -291,6 +281,8 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
                 SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Heard);
                 SetEnemyHeardReasonAs(EEnemy_HeardReason::FootStep);
+
+                BlackboardComp->SetValueAsVector(FName("Investigation_Location"), Stimulus.StimulusLocation);
                 
                 if (Stimulus.Tag == "FootStepSound.Walk")
                 {
@@ -301,7 +293,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 if(Stimulus.Tag == "FootStepSound.Sprint")
                 {
                     BlackboardComp->SetValueAsEnum(FName("HeardFootStepMovementType"), static_cast<uint8>(EHeardFootStepMovementType::Sprint));
-                    
+                   
                 }
 
                 
@@ -315,6 +307,8 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
                 SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Heard);
                 SetEnemyHeardReasonAs(EEnemy_HeardReason::RockSound);
+
+                BlackboardComp->SetValueAsVector(FName("Investigation_Location"), Stimulus.StimulusLocation);
             }
             
         }
@@ -327,6 +321,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 SetEnemyHeardReasonAs(EEnemy_HeardReason::None);
                 BlackboardComp->SetValueAsEnum(FName("HeardFootStepMovementType"), static_cast<uint8>(EHeardFootStepMovementType::None));
                 
+                
             }
 
             if (Stimulus.Tag == "RockSound")
@@ -334,7 +329,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 SetEnemyHeardReasonAs(EEnemy_HeardReason::None);
             }
             
-
+            
         }
     }
 
