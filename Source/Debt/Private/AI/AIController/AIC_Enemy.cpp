@@ -1,4 +1,3 @@
-
 #include "AI/AIController/AIC_Enemy.h"
 
 
@@ -203,7 +202,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 
 
                     BlackboardComp->SetValueAsBool(FName("SawRock"), true);
-                    UE_LOG(LogTemp, Warning, TEXT("Rock Actor: %s"), *Actor->GetName());
+                    
 
                      // If Rock seen in the Air, PlayerCharacter location will be copmrimised!
 
@@ -257,7 +256,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 
                 if (!Stimulus.IsActive())
                 {
-                   // UE_LOG(LogTemp, Warning, TEXT("TAS BITTI"))
+                    UE_LOG(LogTemp, Warning, TEXT("TAS BITTI"))
                     BlackboardComp->SetValueAsBool(FName("SawRock"), false);
                 }
                 
@@ -766,17 +765,22 @@ void AAIC_Enemy::SetEnemySitutationAs(EEnemySitutation NewSitutation)
     uint8 CurrentEnemySitutation = static_cast<uint8>(GetEnemySitutation());
     uint8 DesiredEnemySitutation = static_cast<uint8>(NewSitutation);
 
-    if (CurrentEnemySitutation > DesiredEnemySitutation)
+    if (!(NewSitutation == EEnemySitutation::None))
     {
-        return;
+        if (CurrentEnemySitutation > DesiredEnemySitutation)
+        {
+            return;
+        }
+        else
+        {
+            BlackboardComp->SetValueAsEnum(FName("EnemySitutation"), static_cast<uint8>(NewSitutation));
+        }
     }
     else
     {
         BlackboardComp->SetValueAsEnum(FName("EnemySitutation"), static_cast<uint8>(NewSitutation));
     }
     
-    
-
 }
 
 
@@ -798,7 +802,8 @@ void AAIC_Enemy::SetEnemyAlarmLevelAs(EEnemy_AlarmLevel NewAlarmLevel)
     uint8 CurrentEnemyAlarmLevel = static_cast<uint8>(GetEnemyAlarmLevel());
     uint8 DesiredNewAlarmLevel = static_cast<uint8>(NewAlarmLevel);
     
-    if (GetEnemySitutation() == EEnemySitutation::Alarm)
+    
+     if (GetEnemySitutation() == EEnemySitutation::Alarm)
     {
         if (CurrentEnemyAlarmLevel > DesiredNewAlarmLevel)
         {
@@ -814,6 +819,19 @@ void AAIC_Enemy::SetEnemyAlarmLevelAs(EEnemy_AlarmLevel NewAlarmLevel)
     {
         BlackboardComp->SetValueAsEnum(FName("EnemyAlarmLevel"), static_cast<uint8>(EEnemy_AlarmLevel::None));
     }
+    
+
+    /*
+    if (CurrentEnemyAlarmLevel > DesiredNewAlarmLevel)
+    {
+        return;
+    }
+    else
+    {
+        BlackboardComp->SetValueAsEnum(FName("EnemyAlarmLevel"), static_cast<uint8>(NewAlarmLevel));
+    }
+    */
+    
 
 
 }

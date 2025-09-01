@@ -17,8 +17,7 @@ UBTTask_SetEnemyProperties::UBTTask_SetEnemyProperties()
 EBTNodeResult::Type UBTTask_SetEnemyProperties::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 
-	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	if (!PlayerCharacter) return EBTNodeResult::Failed;
+	
 
 
 	/*
@@ -27,10 +26,6 @@ EBTNodeResult::Type UBTTask_SetEnemyProperties::ExecuteTask(UBehaviorTreeCompone
 	if (!BlackboardComponent) return EBTNodeResult::Failed;
 	*/
 
-	
-	
-
-	
 
 	//Getting AIController
 	AAIController* AIController = OwnerComp.GetAIOwner();
@@ -40,14 +35,45 @@ EBTNodeResult::Type UBTTask_SetEnemyProperties::ExecuteTask(UBehaviorTreeCompone
 	AAIC_Enemy* NPC_Controller = Cast<AAIC_Enemy>(AIController);
 	if (!NPC_Controller) return EBTNodeResult::Failed;
 
+	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	if (!BlackboardComp) return EBTNodeResult::Failed;
+		
 	
-		if (bShouldSetEnemySitutation == true)
+
+	if (bShouldSetEnemySitutation == true)
+	{
+		BlackboardComp->SetValueAsEnum(FName("EnemySitutation"), static_cast<uint8>(Desired_EnemySitutation));
+	}
+
+
+	if (bShouldSetEnemyAlarmLevel == true)
+	{
+		BlackboardComp->SetValueAsEnum(FName("EnemyAlarmLevel"), static_cast<uint8>(Desired_EnemyAlarmLevel));
+	}
+
+
+	if (bShouldSetEnemyInvestigationReason == true)
+	{
+		BlackboardComp->SetValueAsEnum(FName("Enemy_InvestigateSuspiciousReason"), static_cast<uint8>(Desired_EnemyInvestigateReason));
+	}
+
+	return EBTNodeResult::Succeeded;
+}
+
+
+
+
+
+
+
+/*
+	* if (bShouldSetEnemySitutation == true)
 		{
 			switch (Desired_EnemySitutation)
 			{
 			case EEnemySitutation::Patrol:
 				NPC_Controller->SetEnemySitutationAs(EEnemySitutation::Patrol);
-				
+
 				break;
 			case EEnemySitutation::Investigate:
 				NPC_Controller->SetEnemySitutationAs(EEnemySitutation::Investigate);
@@ -64,7 +90,7 @@ EBTNodeResult::Type UBTTask_SetEnemyProperties::ExecuteTask(UBehaviorTreeCompone
 			default:
 				break;
 			}
-			
+
 		}
 
 
@@ -74,28 +100,28 @@ EBTNodeResult::Type UBTTask_SetEnemyProperties::ExecuteTask(UBehaviorTreeCompone
 			{
 			case EEnemy_AlarmLevel::HugeAlarm:
 				NPC_Controller->SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::HugeAlarm);
-				
+
 				break;
 			case EEnemy_AlarmLevel::BigAlarm:
 				NPC_Controller->SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::BigAlarm);
-				
+
 				break;
 			case EEnemy_AlarmLevel::MiddleAlarm:
 				NPC_Controller->SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::MiddleAlarm);;
-				
+
 				break;
 			case EEnemy_AlarmLevel::SmallAlarm:
 				NPC_Controller->SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::SmallAlarm);;
-				
+
 				break;
 			case EEnemy_AlarmLevel::None:
 				NPC_Controller->SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);;
-				
+
 				break;
 			default:
 				break;
 			}
-			
+
 		}
 
 
@@ -126,22 +152,13 @@ EBTNodeResult::Type UBTTask_SetEnemyProperties::ExecuteTask(UBehaviorTreeCompone
 			default:
 				break;
 			}
-			
+
 		}
 
 	return EBTNodeResult::Succeeded;
 }
 
-
-
-
-
-
-
-
-
-
-
+	*/
 
 
 
