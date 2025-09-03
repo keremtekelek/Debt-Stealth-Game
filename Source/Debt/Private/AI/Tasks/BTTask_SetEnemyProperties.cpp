@@ -17,16 +17,6 @@ UBTTask_SetEnemyProperties::UBTTask_SetEnemyProperties()
 EBTNodeResult::Type UBTTask_SetEnemyProperties::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 
-	
-
-
-	/*
-	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
-	bool IsPlayerVisible = BlackboardComponent->GetValueAsBool(FName("IsPlayerVisible"));
-	if (!BlackboardComponent) return EBTNodeResult::Failed;
-	*/
-
-
 	//Getting AIController
 	AAIController* AIController = OwnerComp.GetAIOwner();
 	if (!AIController) return EBTNodeResult::Failed;

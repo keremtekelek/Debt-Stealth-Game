@@ -6,6 +6,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
 #include "RockCPP.generated.h"
 
 UCLASS()
@@ -26,6 +28,7 @@ protected:
 public:	
 	
 	virtual void Tick(float DeltaTime) override;
+	virtual void PostInitializeComponents() override;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -36,5 +39,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class UProjectileMovementComponent* ProjectileMovement;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UAIPerceptionStimuliSourceComponent* StimuliSourceComp;
 
 };

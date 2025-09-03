@@ -17,6 +17,9 @@ ARockCPP::ARockCPP()
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 
+	StimuliSourceComp = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("StimuliSourceComp"));
+	StimuliSourceComp->bAutoRegister = true;
+
 
 	// Defining the Default Values of Variables
 	
@@ -33,6 +36,15 @@ void ARockCPP::BeginPlay()
 void ARockCPP::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+}
+
+void ARockCPP::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	StimuliSourceComp->RegisterForSense(UAISense_Sight::StaticClass());
+	StimuliSourceComp->RegisterWithPerceptionSystem();
 
 }
 

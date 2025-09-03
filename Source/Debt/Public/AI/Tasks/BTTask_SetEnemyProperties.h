@@ -38,21 +38,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Desired Enemy Values", meta = (EditCondition = "bShouldSetEnemyInvestigationReason"))
 	EEnemy_SuspiciousReason Desired_EnemyInvestigateReason;
 
-	
-
-
-
-
-
-	
-
-	
-
-
-
-
-
-
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
 };

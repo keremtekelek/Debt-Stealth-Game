@@ -1,14 +1,10 @@
-
-
 #include "MainCharacter.h"
 
 
 
 AMainCharacter::AMainCharacter()
 {
-
 	PrimaryActorTick.bCanEverTick = true;
-
 
 	bIsCrouchingg = false; //Setting the Variables default values 
 	bIsSprintingg = false;
@@ -19,12 +15,10 @@ AMainCharacter::AMainCharacter()
 	if (SprintAction.Succeeded())			//If it succeeds, equalizing the SprintAction with input actions
 	{
 		IA_Sprint = SprintAction.Object;
-
 	}
 	else									//If fails, equalizing the input actions to nullptr
 	{
 		IA_Sprint = nullptr;
-		
 	}
 	if (CrouchAction.Succeeded())
 	{
@@ -33,11 +27,7 @@ AMainCharacter::AMainCharacter()
 	else
 	{
 		IA_Crouch = nullptr;
-		
 	}
-
-
-
 }
 
 
@@ -47,15 +37,12 @@ void AMainCharacter::BeginPlay()
 	CharacterMovementComp = GetCharacterMovement();  //Setting the CharacterMovementComp variable
 
 	CharacterMovementComp->MaxWalkSpeed = 300.f;
-
-
 }
 
 
 void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 
@@ -67,7 +54,6 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-
 		if (IA_Sprint)
 		{
 			EnhancedInputComponent->BindAction(IA_Sprint, ETriggerEvent::Started, this, &AMainCharacter::IA_SPRINT_STARTED);
@@ -92,12 +78,8 @@ void AMainCharacter::IA_SPRINT_STARTED(const FInputActionInstance& Instance) // 
 			if (CharacterMovementComp)
 			{
 				CharacterMovementComp->MaxWalkSpeed = 300.f;
-				
 			}
-
-
 		}
-
 		else
 		{
 			bIsSprintingg = true;
@@ -106,11 +88,7 @@ void AMainCharacter::IA_SPRINT_STARTED(const FInputActionInstance& Instance) // 
 			{
 				CharacterMovementComp->MaxWalkSpeed = 600.f;
 			}
-
-
 		}
-
-
 	}
 }
 
@@ -123,7 +101,6 @@ void AMainCharacter::IA_CROUCH_STARTED(const FInputActionInstance& Instance) //S
 		{
 			bIsCrouchingg = true;
 			Crouch();
-
 		}
 		else
 		{
@@ -132,14 +109,6 @@ void AMainCharacter::IA_CROUCH_STARTED(const FInputActionInstance& Instance) //S
 		}
 	}
 }
-
-
-
-
-
-
-
-
 
 
 /**

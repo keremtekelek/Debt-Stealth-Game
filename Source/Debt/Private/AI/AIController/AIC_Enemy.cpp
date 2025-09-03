@@ -7,12 +7,6 @@
     GetWorld()->GetTimerManager().SetTimer(LocalTimerHandle, [this]() { block; }, time, false); \
 }
 
-
-
-
-
-
-
 AAIC_Enemy::AAIC_Enemy()
 {
 
@@ -103,13 +97,9 @@ void AAIC_Enemy::BeginPlay()
     PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     BlackboardComp->SetValueAsObject(FName("PlayerCharacter"), PlayerCharacter);
 
-    
-
     GetWorld()->GetTimerManager().SetTimer(GetEnemyAndWidgetTimerHandle,this,&AAIC_Enemy::GetEnemyAndWidget,2.f,false);
 
     GetWorldTimerManager().SetTimer(DelayHandler,this,&AAIC_Enemy::DelayHandlerFunction,2.5f,false);
-    
-
 }
 
 
@@ -136,7 +126,6 @@ void AAIC_Enemy::OnPossess(APawn* InPawn)
         if (EnemyBase)
         {
             EenemySitutation = EnemyBase->DefaultEnemySitutation;
-
         }
 
         //Defining ENUMS Default Value for Blackboard
@@ -146,8 +135,6 @@ void AAIC_Enemy::OnPossess(APawn* InPawn)
         BlackboardComp->SetValueAsEnum(FName("EnemyAlarmLevel"), static_cast<uint8>(Eenemy_AlarmLevel));
         BlackboardComp->SetValueAsEnum(FName("Enemy_HeardReason"), static_cast<uint8>(Eenemy_HeardReason));
         BlackboardComp->SetValueAsEnum(FName("SuspiciousLevel"),0.f);
-
-
     }
 }
 
@@ -161,9 +148,6 @@ void AAIC_Enemy::Tick(float DeltaTime)
     {
         HandleSuspiciousMeter(DeltaTime);
     }
-    
-    
-
 }
 
 // Event OnTargetPerceptionUpdated
@@ -187,7 +171,6 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     BlackboardComp->SetValueAsBool(FName("IsPlayerVisible"), true);
                     BlackboardComp->SetValueAsBool(FName("PlayerLostConfirmed"), false);
                     BlackboardComp->SetValueAsVector(FName("PlayerLastKnownLocation"), Stimulus.StimulusLocation);
-                    
                 }
 
                 // If what is seen is Rock
@@ -202,7 +185,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 
 
                     BlackboardComp->SetValueAsBool(FName("SawRock"), true);
-                    
+
 
                      // If Rock seen in the Air, PlayerCharacter location will be copmrimised!
 
@@ -217,26 +200,19 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     // If enemy saw the rock on the Air Condition
                     if (!bHit)
                     {
-                       //HandleSuspicionLevel(ESuspiciousMeterType::Investigation, 0.1f);
                        DrawDebugSphere(GetWorld(), PlayerCharacter->GetActorLocation(), 15.f, 15, FColor::Blue, false, 5.f, 0, 2.f);
-
+                       
                        BlackboardComp->SetValueAsBool(FName("IsRockSeenInTheAir"), true);
-                       //BlackboardComp->SetValueAsBool(FName("SawRock"), true);
                        BlackboardComp->SetValueAsVector(FName("Investigation_Location"), PlayerCharacter->GetActorLocation());
                     }
 
                     // If enemy saw the rock not on the Air Condition
                      if (bHit)
                      {
-                       //HandleSuspicionLevel(ESuspiciousMeterType::Investigation, 0.f);
-                       //BlackboardComp->SetValueAsBool(FName("SawRock"), true);
                        BlackboardComp->SetValueAsBool(FName("IsRockSeenInTheAir"), false);
                        BlackboardComp->SetValueAsVector(FName("Investigation_Location"), RockLocation);
-
                      }
-
                 }
-
         }
 
         else
@@ -252,15 +228,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
             }
 
             if (Actor->ActorHasTag("ThrowableRock"))
-            {
-                
-                if (!Stimulus.IsActive())
-                {
-                    UE_LOG(LogTemp, Warning, TEXT("TAS BITTI"))
-                    BlackboardComp->SetValueAsBool(FName("SawRock"), false);
-                }
-                
-                
+            { 
                 
             }
         }
@@ -328,10 +296,8 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                 SetEnemyHeardReasonAs(EEnemy_HeardReason::None);
             }
             
-            
         }
     }
-
 
     //Prediction Sense
    
@@ -340,21 +306,28 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
         if (Stimulus.WasSuccessfullySensed())
         {
             FVector PredictedLocation = Stimulus.StimulusLocation;
+            FVector PlayerCharacterLoc;
 
-            BlackboardComp->SetValueAsVector(FName("PredictedLocation"), PredictedLocation);
+            if (IsValid(PlayerCharacter))
+            {
+                PlayerCharacterLoc = PlayerCharacter->GetActorLocation();
+
+                PredictedLocation.Z = PlayerCharacterLoc.Z;
+
+                DrawDebugSphere(GetWorld(), PredictedLocation, 30.f, 18.f, FColor::Red, false, 7.f, 0.f, 0.3f);
+                BlackboardComp->SetValueAsVector(FName("PredictedLocation"), PredictedLocation);
+            }
         }
         else
         {
-
+            
         }
     }
-
-
 }
 
 
 
-// Suspicious Meter Functions
+// Suspicioun Meter Functions
 
 void AAIC_Enemy::HandleSuspiciousMeter(float DeltaTime)
 {
@@ -562,7 +535,7 @@ void AAIC_Enemy::GetEnemyAndWidget()
 
 void AAIC_Enemy::PlayerSawOrLostConfirmed(FString TypeSawOrLost, bool ChangeItTrueOrFalse)
 {
-    UE_LOG(LogTemp, Warning, TEXT("Function is working!"))
+    UE_LOG(LogTemp, Warning, TEXT("PlayerSawOrLostConfirmed Function is working!"))
 
     FString SightType = TypeSawOrLost.ToLower();
     bool SightBool = ChangeItTrueOrFalse;
@@ -616,7 +589,6 @@ void AAIC_Enemy::PlayerSawOrLostConfirmed(FString TypeSawOrLost, bool ChangeItTr
 void AAIC_Enemy::DelayHandlerFunction()
 {
     CanTick = true;
-
 }
 
 
@@ -664,8 +636,6 @@ void AAIC_Enemy::WarnOtherAIs(EEnemySitutation Situtation, EEnemy_AlarmLevel Ala
             }
         }
     }
-
-
 }
 
 void AAIC_Enemy::ReceiveWarnFromOtherAI(EEnemySitutation Situtation, EEnemy_AlarmLevel AlarmLevel, FVector AlarmLocation, EEnemy_SuspiciousReason Reason)
@@ -752,7 +722,7 @@ void AAIC_Enemy::ReceiveWarnFromOtherAI(EEnemySitutation Situtation, EEnemy_Alar
 
 
 
-//Handling EnemySitutation Fuctions
+//Handling Enemy's Blackboard Value Fuctions
 
 EEnemySitutation AAIC_Enemy::GetEnemySitutation() const
 {
@@ -780,7 +750,6 @@ void AAIC_Enemy::SetEnemySitutationAs(EEnemySitutation NewSitutation)
     {
         BlackboardComp->SetValueAsEnum(FName("EnemySitutation"), static_cast<uint8>(NewSitutation));
     }
-    
 }
 
 
@@ -866,7 +835,6 @@ void AAIC_Enemy::SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason NewSuspicio
     {
         BlackboardComp->SetValueAsEnum(FName("Enemy_InvestigateSuspiciousReason"), static_cast<uint8>(EEnemy_SuspiciousReason::None));
     }
-
 }
 
 
@@ -899,11 +867,8 @@ void AAIC_Enemy::SetEnemyHeardReasonAs(EEnemy_HeardReason NewHeardReason)
     }
     else
     {
-        return;
+        BlackboardComp->SetValueAsEnum(FName("Enemy_HeardReason"), static_cast<uint8>(EEnemy_HeardReason::None));
     }
-    
-    
-
 }
 
 

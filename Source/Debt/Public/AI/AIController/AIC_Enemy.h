@@ -10,6 +10,7 @@
 #include "Perception/AISenseConfig_Hearing.h"
 #include "Perception/AISenseConfig_Prediction.h"
 #include "Perception/AISense_Prediction.h"
+#include "NavigationSystem.h"
 #include "TimerManager.h" 
 #include "EngineUtils.h"
 #include "Enums/GlobalEnums.h"
@@ -72,7 +73,7 @@ protected:
 
 
 
-	//Tick Function
+	
 	virtual void Tick(float DeltaTime) override;
 
 private:
@@ -81,7 +82,7 @@ private:
 
 
 
-	// Suspicious Meter Values
+	// Suspicioun Meter Values
 	
 	UPROPERTY()
 	UWidgetComponent* SuspiciousMeter_WidgetComponent;
@@ -138,12 +139,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESuspiciousMeterType TypeOfSuspicion;
-
-	
-
-	
-
-	
 
 
 	//FUNCTIONS
@@ -210,7 +205,7 @@ public:
 	
 
 	
-	//Setting Enemy Situtations by Functions
+	//Setting Enemy Blackboard Values by Functions
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetEnemySitutationAs(EEnemySitutation NewSitutation);
@@ -224,8 +219,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetEnemyHeardReasonAs(EEnemy_HeardReason NewHeardReason);
-
-
+	
 
 	// Defining AI Communication Functions
 

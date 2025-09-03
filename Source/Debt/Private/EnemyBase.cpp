@@ -23,9 +23,7 @@ AEnemyBase::AEnemyBase()
 		{
 			WidgetComp->SetWidgetClass((WidgetClass.Class));
 		}
-
 	}
-	
 }
 
 void AEnemyBase::BeginPlay()
@@ -33,29 +31,23 @@ void AEnemyBase::BeginPlay()
 	Super::BeginPlay();
 
 	WidgetComp->InitWidget();
-
 }
 
 void AEnemyBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
 }
 
 
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
-
 }
 
 
 void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 
@@ -93,7 +85,6 @@ float AEnemyBase::SetMovementSpeed_Implementation(EMovementSpeed MovementSpeedTy
 	}
 
 	return GetCharacterMovement()->MaxWalkSpeed;
-
 }
 
 
