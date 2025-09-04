@@ -43,4 +43,6 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* ExclamationMarkImage;
+
+	
 };

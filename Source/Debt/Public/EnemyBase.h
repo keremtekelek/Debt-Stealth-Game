@@ -1,6 +1,5 @@
 
 #pragma once
-
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -9,6 +8,10 @@
 #include "Enums/GlobalEnums.h"
 #include "Components/WidgetComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Camera/PlayerCameraManager.h"
+#include "TimerManager.h"
 #include "EnemyBase.generated.h"
 
 
@@ -53,6 +56,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AAAAA")
 	EEnemySitutation DefaultEnemySitutation;
 
+	UPROPERTY(VisibleAnywhere)
+	ACharacter* PlayerCharacter;
+
+	UPROPERTY(VisibleAnywhere)
+	APlayerCameraManager* CameraManager;
+
+	UPROPERTY(VisibleAnywhere)
+	FTimerHandle DelayHandler;
+	
+
+
+
+
 
 	//FUNCTIONS!!!
 
@@ -61,5 +77,8 @@ public:
 	virtual APatrolRoute* GetPatrolRoute_Implementation() const override;
 
 	virtual float SetMovementSpeed_Implementation(EMovementSpeed MovementSpeedType) const override;
+
+	UFUNCTION()
+	void GetProperties();
 
 };

@@ -12,7 +12,7 @@ AEnemyBase::AEnemyBase()
 	if (WidgetComp)
 	{
 		WidgetComp->SetupAttachment(GetMesh());
-		WidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
+		WidgetComp->SetWidgetSpace(EWidgetSpace::World);
 		WidgetComp->SetDrawSize(FVector2D(100, 100));
 		WidgetComp->SetRelativeLocation(FVector(0, 10, 200));
 		WidgetComp->SetVisibility(false);
@@ -31,6 +31,9 @@ void AEnemyBase::BeginPlay()
 	Super::BeginPlay();
 
 	WidgetComp->InitWidget();
+	
+	
+	GetWorld()->GetTimerManager().SetTimer(DelayHandler, this, &AEnemyBase::GetProperties, 2.f, false);
 }
 
 void AEnemyBase::PostInitializeComponents()
@@ -42,6 +45,20 @@ void AEnemyBase::PostInitializeComponents()
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (IsValid(WidgetComp) && IsValid(PlayerCharacter) && IsValid(CameraManager))
+	{
+		FRotator LookAtRotation;
+		FVector TargetLocation;
+		FVector StartLocation;
+
+		StartLocation = WidgetComp->GetComponentLocation();
+		TargetLocation = CameraManager->GetTransformComponent()->GetComponentLocation();
+
+		LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
+
+		WidgetComp->SetWorldRotation(LookAtRotation);
+	}
 }
 
 
@@ -87,4 +104,14 @@ float AEnemyBase::SetMovementSpeed_Implementation(EMovementSpeed MovementSpeedTy
 	return GetCharacterMovement()->MaxWalkSpeed;
 }
 
+void AEnemyBase::GetProperties()
+{
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(DelayHandler);
+		PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+		CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	}
+	
 
+}
