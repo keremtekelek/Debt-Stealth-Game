@@ -11,6 +11,7 @@ AMainCharacter::AMainCharacter()
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> SprintAction(TEXT("/Game/Input/Actions/IA_Sprint")); //Getting IA_Sprint and IA_Crouch
 	static ConstructorHelpers::FObjectFinder<UInputAction> CrouchAction(TEXT("/Game/Input/Actions/IA_Crouch"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> InteractAction(TEXT("/Game/Input/Actions/IA_Interact"));
 
 	if (SprintAction.Succeeded())			//If it succeeds, equalizing the SprintAction with input actions
 	{
@@ -28,6 +29,15 @@ AMainCharacter::AMainCharacter()
 	{
 		IA_Crouch = nullptr;
 	}
+	if (InteractAction.Succeeded())
+	{
+		IA_Interact = InteractAction.Object;
+	}
+	else
+	{
+		IA_Interact = nullptr;
+	}
+	
 }
 
 
@@ -62,6 +72,10 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		if (IA_Crouch)
 		{
 			EnhancedInputComponent->BindAction(IA_Crouch, ETriggerEvent::Started, this, &AMainCharacter::IA_CROUCH_STARTED);
+		}
+		if (IA_Interact)
+		{
+			EnhancedInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &AMainCharacter::IA_INTERACT_STARTED);
 		}
 	}
 }
@@ -109,6 +123,29 @@ void AMainCharacter::IA_CROUCH_STARTED(const FInputActionInstance& Instance) //S
 		}
 	}
 }
+
+
+void AMainCharacter::IA_INTERACT_STARTED(const FInputActionInstance& Instance)
+{
+	TArray<AActor*> OverlappingActors;
+	GetOverlappingActors(OverlappingActors);
+	
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (Actor && Actor->GetClass()->ImplementsInterface(UInterface_Interaction::StaticClass()))
+		{
+			IInterface_Interaction::Execute_Interact(Actor);
+			//UE_LOG(LogTemp,Warning,TEXT("Character Interacted!"))
+		}
+	}
+}
+
+
+
+
+
+
+
 
 
 /**

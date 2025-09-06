@@ -11,11 +11,12 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISightTargetInterface.h"
 #include "Enums/GlobalEnums.h"
+#include "Interfaces/Interface_Interaction.h"
 #include "MainCharacter.generated.h"
 
 
 UCLASS()
-class DEBT_API AMainCharacter : public ACharacter, public IAISightTargetInterface
+class DEBT_API AMainCharacter : public ACharacter, public IAISightTargetInterface, public IInterface_Interaction
 {
 	GENERATED_BODY()
 
@@ -33,6 +34,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* IA_Crouch;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* IA_Interact;
+
+
+
 
 public:
 
@@ -44,7 +50,7 @@ public:
 	virtual UAISense_Sight::EVisibilityResult CanBeSeenFrom(const FCanBeSeenFromContext& Context, FVector& OutSeenLocation, int32& OutNumberOfLoSChecksPerformed, int32& OutNumberOfAsyncLosCheckRequested, float& OutSightStrength, int32* UserData = nullptr, const FOnPendingVisibilityQueryProcessedDelegate* Delegate = nullptr) override;
 
 
-
+	//VARIABLES
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)  //Making the variables of crouch-sprint boolean stations
 	bool bIsCrouchingg;
@@ -59,14 +65,14 @@ public:
 
 
 
-
+	//FUNCTIONS
 
 	UFUNCTION()
-	void IA_SPRINT_STARTED(const FInputActionInstance& Instance);  //Created for "started" events of input actions
+	void IA_SPRINT_STARTED(const FInputActionInstance& Instance); //Created for "started" events of input actions
+	
+	UFUNCTION()
 	void IA_CROUCH_STARTED(const FInputActionInstance& Instance);
 
-
-
-
-
+	UFUNCTION()
+	void IA_INTERACT_STARTED(const FInputActionInstance& Instance);
 };

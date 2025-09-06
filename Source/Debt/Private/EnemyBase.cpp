@@ -112,6 +112,4 @@ void AEnemyBase::GetProperties()
 		PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 		CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	}
-	
-
 }
