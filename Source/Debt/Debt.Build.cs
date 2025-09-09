@@ -8,7 +8,7 @@ public class Debt : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "EnhancedInput", "UMG", "Slate", "SlateCore", "NavigationSystem" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "EnhancedInput", "UMG", "Slate", "SlateCore", "NavigationSystem", "MediaAssets", "Niagara" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
