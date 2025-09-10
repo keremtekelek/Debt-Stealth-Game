@@ -100,6 +100,10 @@ void AAIC_Enemy::BeginPlay()
     GetWorld()->GetTimerManager().SetTimer(GetEnemyAndWidgetTimerHandle,this,&AAIC_Enemy::GetEnemyAndWidget,2.f,false);
 
     GetWorldTimerManager().SetTimer(DelayHandler,this,&AAIC_Enemy::DelayHandlerFunction,2.5f,false);
+
+   // GetInteractableObjects();
+
+
 }
 
 
@@ -147,7 +151,11 @@ void AAIC_Enemy::Tick(float DeltaTime)
     if (CanTick)
     {
         HandleSuspiciousMeter(DeltaTime);
+
+       //GetWorld()->GetTimerManager().SetTimer(GetRoomNameHandler, this, &AAIC_Enemy::GetRoomName, 0.3f, false);
     }
+
+
 }
 
 // Event OnTargetPerceptionUpdated
@@ -159,7 +167,6 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
     {
         if (Stimulus.WasSuccessfullySensed())
         {
-
                 // If what is seen is MainCharacter
                 if (Actor == PlayerCharacter)
                 {
@@ -213,6 +220,132 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                        BlackboardComp->SetValueAsVector(FName("Investigation_Location"), RockLocation);
                      }
                 }
+
+                if (Actor->ActorHasTag("Book"))
+                {
+                    ABookCPP* Book = Cast<ABookCPP>(Actor);
+
+                    if (IsValid(Book))
+                    {
+                        if (Book->IsHidden())
+                        {
+                            FName RoomName = Book->RoomName;
+                            SetSuspectedObject(ESuspectedObject::Book);
+
+                            if (RoomName == FName("MeetingRoom"))
+                            {
+                                SetEventRoom(EEventRoom::MeetingRoom);
+                            }
+                            else if (RoomName == FName("HangingRoom"))
+                            {
+                                SetEventRoom(EEventRoom::HangingRoom);
+                            }
+                            else if (RoomName == FName("OfficeRoom2"))
+                            {
+                                SetEventRoom(EEventRoom::OfficeRoom2);
+                            }
+                        }
+                    }
+                }
+
+                if (Actor->ActorHasTag("CoffeeMachine"))
+                {
+                    ACoffeeMachineCPP* CoffeeMachine = Cast<ACoffeeMachineCPP>(Actor);
+
+                    if (IsValid(CoffeeMachine))
+                    {
+                        if (CoffeeMachine->IsCoffeeMachineCrashed)
+                        {
+                            FName RoomName = CoffeeMachine->RoomName;
+                            SetSuspectedObject(ESuspectedObject::CoffeeMachine);
+
+                            if (RoomName == FName("Kitchen"))
+                            {
+                                SetEventRoom(EEventRoom::Kitchen);
+                            }
+                            
+                        }
+                    }
+                    
+                }
+
+                if (Actor->ActorHasTag("Computer"))
+                {
+                    AComputerCPP* Computer = Cast<AComputerCPP>(Actor);
+
+                    if (IsValid(Computer))
+                    {
+                        if (Computer->IsComputerOpen)
+                        {
+                            FName RoomName = Computer->RoomName;
+                            SetSuspectedObject(ESuspectedObject::Computer);
+
+                            if (RoomName == FName("OfficeRoom2"))
+                            {
+                                SetEventRoom(EEventRoom::OfficeRoom2);
+                            }
+                            else if (RoomName == FName("OfficeRoom1"))
+                            {
+                                SetEventRoom(EEventRoom::OfficeRoom1);
+                            }
+                           
+                        }
+                    }
+                }
+
+                if (Actor->ActorHasTag("LightSwitch"))
+                {
+                    ALightSwitchCPP* LightSwitch = Cast<ALightSwitchCPP>(Actor);
+
+                    if (IsValid(LightSwitch))
+                    {
+                        if (!LightSwitch->IsLightOpen)
+                        {
+                            UE_LOG(LogTemp, Warning, TEXT("Light Open?: %s"), LightSwitch->IsLightOpen ? TEXT("true") : TEXT("false"));
+
+                            FName RoomName = LightSwitch->RoomName;
+                            SetSuspectedObject(ESuspectedObject::Light);
+
+                            if (RoomName == FName("MainHall"))
+                            {
+                                SetEventRoom(EEventRoom::MainHall);
+                            }
+                            else if (RoomName == FName("OfficeRoom1"))
+                            {
+                                SetEventRoom(EEventRoom::OfficeRoom1);
+                            }
+                            else if (RoomName == FName("MeetingRoom"))
+                            {
+                                SetEventRoom(EEventRoom::MeetingRoom);
+                            }
+                            else if (RoomName == FName("HangingRoom"))
+                            {
+                                SetEventRoom(EEventRoom::HangingRoom);
+                            }
+                            else if (RoomName == FName("Kitchen"))
+                            {
+                                SetEventRoom(EEventRoom::Kitchen);
+                            }
+                            else if (RoomName == FName("OfficeRoom2"))
+                            {
+                                SetEventRoom(EEventRoom::OfficeRoom2);
+                            }
+                            else if (RoomName == FName("StorageRoom1"))
+                            {
+                                SetEventRoom(EEventRoom::StorageRoom1);
+                            }
+                            else if (RoomName == FName("StorageRoom2"))
+                            {
+                                SetEventRoom(EEventRoom::StorageRoom2);
+                            }
+                            else if (RoomName == FName("ManagerRoom"))
+                            {
+                                SetEventRoom(EEventRoom::ManagerRoom);
+                            }
+                        }
+                    }
+                }
+
         }
 
         else
@@ -324,7 +457,6 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
         }
     }
 }
-
 
 
 // Suspicioun Meter Functions
@@ -870,6 +1002,39 @@ void AAIC_Enemy::SetEnemyHeardReasonAs(EEnemy_HeardReason NewHeardReason)
         BlackboardComp->SetValueAsEnum(FName("Enemy_HeardReason"), static_cast<uint8>(EEnemy_HeardReason::None));
     }
 }
+
+
+EEventRoom AAIC_Enemy::GetEventRoom() const
+{
+    uint8 CurrentEventRoom = BlackboardComp->GetValueAsEnum("EventRoom");
+    return static_cast<EEventRoom>(CurrentEventRoom);
+}
+
+void AAIC_Enemy::SetEventRoom(EEventRoom NewEventRoom)
+{
+    uint8 DesiredEventRoom = static_cast<uint8>(NewEventRoom);
+    BlackboardComp->SetValueAsEnum(FName("EventRoom"), static_cast<uint8>(DesiredEventRoom));
+
+}
+
+
+ESuspectedObject AAIC_Enemy::GetSuspectedObject() const
+{
+    uint8 CurrentSuspectedObject = BlackboardComp->GetValueAsEnum("SuspectedObject");
+    return static_cast<ESuspectedObject>(CurrentSuspectedObject);
+}
+
+void AAIC_Enemy::SetSuspectedObject(ESuspectedObject NewSuspectedObject)
+{
+    uint8 DesiredSuspectedObject = static_cast<uint8>(NewSuspectedObject);
+    BlackboardComp->SetValueAsEnum(FName("SuspectedObject"), static_cast<uint8>(DesiredSuspectedObject));
+}
+
+
+
+
+
+
 
 
 

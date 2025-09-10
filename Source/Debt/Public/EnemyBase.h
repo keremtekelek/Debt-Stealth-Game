@@ -64,6 +64,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	FTimerHandle DelayHandler;
+
+	UPROPERTY(VisibleAnywhere)
+	FTimerHandle SendRoomNameHandler;
 	
 
 
@@ -80,5 +83,11 @@ public:
 
 	UFUNCTION()
 	void GetProperties();
+
+	UFUNCTION()
+	FName SendRoomName();
+
+	UFUNCTION()
+	void CallSendRoomName();
 
 };

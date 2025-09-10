@@ -59,6 +59,10 @@ void AEnemyBase::Tick(float DeltaTime)
 
 		WidgetComp->SetWorldRotation(LookAtRotation);
 	}
+
+	GetWorld()->GetTimerManager().SetTimer(SendRoomNameHandler, this, &AEnemyBase::CallSendRoomName, 0.3f, false);
+
+
 }
 
 
@@ -112,4 +116,34 @@ void AEnemyBase::GetProperties()
 		PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 		CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	}
+}
+
+FName AEnemyBase::SendRoomName()
+{
+	FHitResult HitResult;
+	FVector LineTraceStartLoc;
+	FVector LineTraceEndLoc;
+
+	LineTraceStartLoc = GetActorLocation();
+	LineTraceEndLoc = (GetActorUpVector() * -150) + LineTraceStartLoc;
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, LineTraceStartLoc, LineTraceEndLoc, ECC_Visibility);
+
+	if (bHit)
+	{
+		TArray<FName> RoomName = HitResult.GetComponent()->ComponentTags;
+		
+		for (FName name : RoomName)
+		{
+			return name;
+		}
+	}
+
+	return FName("None");
+
+}
+
+void AEnemyBase::CallSendRoomName()
+{
+	SendRoomName();
 }

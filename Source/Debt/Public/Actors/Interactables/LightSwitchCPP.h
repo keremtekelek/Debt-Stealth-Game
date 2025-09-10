@@ -36,6 +36,9 @@ public:
 
 	//VARIABLES!!
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room")
+	FName RoomName;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
 	UMaterialInterface* MI_Lamp;
 
@@ -49,7 +52,7 @@ public:
 	bool CanInteract;
 
 	UPROPERTY(VisibleAnywhere)
-	bool IsLightOpen;
+	bool IsLightOpen = true;
 
 	UPROPERTY(VisibleAnywhere)
 	bool FlipFlopVariable = true;

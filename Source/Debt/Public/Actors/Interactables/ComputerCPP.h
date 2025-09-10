@@ -31,11 +31,14 @@ public:
 
 	//VARIABLES!!!
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room")
+	FName RoomName;
+
 	UPROPERTY(VisibleAnywhere)
 	bool CanInteract;
 
 	UPROPERTY(VisibleAnywhere)
-	bool IsComputerOpen;
+	bool IsComputerOpen = false;
 
 	UPROPERTY(VisibleAnywhere)
 	bool FlipFlopVariable = true;

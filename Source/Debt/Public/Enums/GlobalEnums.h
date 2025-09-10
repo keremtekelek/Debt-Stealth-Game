@@ -117,6 +117,37 @@ enum class EHeardFootStepMovementType : uint8
 
 };
 
+UENUM(BlueprintType)
+enum class EEventRoom : uint8
+{
+
+	None			UMETA(DisplayName = "None"),
+	MainHall		UMETA(DisplayName = "MainHall"),
+	Kitchen			UMETA(DisplayName = "Kitchen"),
+	MeetingRoom		UMETA(DisplayName = "MeetingRoom"),
+	HangingRoom		UMETA(DisplayName = "HangingRoom"),
+	OfficeRoom1		UMETA(DisplayName = "OfficeRoom1"),
+	OfficeRoom2		UMETA(DisplayName = "OfficeRoom2"),
+	StorageRoom1	UMETA(DisplayName = "StorageRoom1"),
+	StorageRoom2	UMETA(DisplayName = "StorageRoom2"),
+	ManagerRoom		UMETA(DisplayName = "ManagerRoom")
+
+};
+
+UENUM(BlueprintType)
+enum class ESuspectedObject : uint8
+{
+
+	None			UMETA(DisplayName = "None"),
+	Book			UMETA(DisplayName = "Book"),
+	Light			UMETA(DisplayName = "Light"),
+	Computer		UMETA(DisplayName = "Computer"),
+	CoffeeMachine	UMETA(DisplayName = "CoffeeMachine")
+	
+};
+
+
+
 
 // DEPRECATED
 UENUM(BlueprintType)

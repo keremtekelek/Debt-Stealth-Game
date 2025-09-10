@@ -122,14 +122,14 @@ void ABookCPP::OnSmallSphereEndOverlap(UPrimitiveComponent* OverlappedComp, AAct
 
 void ABookCPP::Interact_Implementation()
 {
-	if (CanInteract)
+	if (CanInteract && !HasInteractedBefore)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Book has been Interacted!"));
+		IsBookDestroyed = true;
+		HasInteractedBefore = true;
+		SetActorHiddenInGame(true);
+
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Book Interaction Denied!"));
-	}
+	
 	
 }
 

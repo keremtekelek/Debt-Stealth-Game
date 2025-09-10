@@ -13,6 +13,7 @@
 #include "NavigationSystem.h"
 #include "TimerManager.h" 
 #include "EngineUtils.h"
+#include "Engine/Light.h"
 #include "Enums/GlobalEnums.h"
 #include "EnemyBase.h"
 #include "PlayerController/PlayerControllerCPP.h"
@@ -20,6 +21,11 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Containers/UnrealString.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/Actor.h"
+#include "Actors/Interactables/BookCPP.h"
+#include "Actors/Interactables/ComputerCPP.h"
+#include "Actors/Interactables/LightSwitchCPP.h"
+#include "Actors/Interactables/CoffeeMachineCPP.h"
 #include "UI/SuspiciousMeterCPP.h"
 #include "AIC_Enemy.generated.h"
 
@@ -94,6 +100,11 @@ public:
 
 	//VARIABLES!!!
 
+	/*
+	UPROPERTY(VisibleAnywhere)
+	TArray<ABookCPP*> BooksArray;
+	*/
+	
 	
 	UPROPERTY(VisibleAnywhere)
 	AEnemyBase* Enemy;
@@ -108,17 +119,14 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	FTimerHandle DelayHandler;
 
-	//Timer Delegates
-	//UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere)
+	FTimerHandle GetRoomNameHandler;
+
 	FTimerDelegate PlayerSawOrLostTimerDelegate;
 
-
-
-	//PlayerCharacter Reference
 	UPROPERTY(VisibleAnywhere)
 	ACharacter* PlayerCharacter;
 
-	//ENUMS for AI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EEnemy_SuspiciousReason Eenemy_SuspiciousReason;
 
@@ -131,28 +139,30 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EEnemy_HeardReason Eenemy_HeardReason;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ESuspiciousMeterType TypeOfSuspicion;
+
 
 	// Sense ID's
 	FAISenseID SenseSightID;
 	FAISenseID SenseHearID;
 	FAISenseID SensePredictionID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ESuspiciousMeterType TypeOfSuspicion;
+	
+
+	
+
+	//FUNCTIONS!!!
 
 
-	//FUNCTIONS
 
-
-
-	//BeginPlay Function
+	
 	virtual void BeginPlay() override;
 
-	//OnTargetPerceptionUpdated Function is defined.
+	
 	UFUNCTION()
 	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
-	
 	// Suspicious Meter Functions
 
 	UFUNCTION()
@@ -165,9 +175,6 @@ public:
 	void OpenOrCloseWidget(FString TypeQuestionOrExclamation, FString TypeOpenOrClose);
 	
 
-
-
-
 	// Timer Functions
 	UFUNCTION()
 	void PlayerSawOrLostConfirmed(FString TypeSawOrLost,bool ChangeItTrueOrFalse);
@@ -177,15 +184,6 @@ public:
 
 	UFUNCTION()
 	void DelayHandlerFunction();
-
-
-	//Sight Sense Functions that handles the EnemySeenDuration for the detection bar and realism
-	
-
-
-
-
-	//Getting Enemy Situtations by Functions
 
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
@@ -201,10 +199,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	EEnemy_HeardReason GetEnemyHeardReason() const;
 
-	
-	
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	EEventRoom GetEventRoom() const;
 
-	
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	ESuspectedObject GetSuspectedObject() const;
+
 	//Setting Enemy Blackboard Values by Functions
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
@@ -219,15 +219,26 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetEnemyHeardReasonAs(EEnemy_HeardReason NewHeardReason);
+
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	void SetEventRoom(EEventRoom NewEventRoom);
+
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	void SetSuspectedObject(ESuspectedObject NewSuspectedObject);
 	
 
+	
 	// Defining AI Communication Functions
 
 	UFUNCTION()
 	void WarnOtherAIs(EEnemySitutation Situtation, EEnemy_AlarmLevel AlarmLevel, FVector AlarmLocation, EEnemy_SuspiciousReason Reason);
 
-
 	UFUNCTION()
 	void ReceiveWarnFromOtherAI(EEnemySitutation Situtation, EEnemy_AlarmLevel AlarmLevel, FVector AlarmLocation, EEnemy_SuspiciousReason Reason);
+
+	//
+
+	
+
 	
 };

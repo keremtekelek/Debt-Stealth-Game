@@ -153,5 +153,6 @@ void ACoffeeMachineCPP::Interact_Implementation()
 	{
 		OpenCoffeeMachine();
 		HasInteractedBefore = true;
+		IsCoffeeMachineCrashed = true;
 	}
 }

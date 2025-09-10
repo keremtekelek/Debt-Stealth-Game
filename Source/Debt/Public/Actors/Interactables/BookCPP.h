@@ -25,6 +25,16 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Variables!!!
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room")
+	FName RoomName;
+
+	UPROPERTY(VisibleAnywhere)
+	bool IsBookDestroyed = false;
+
+	UPROPERTY(VisibleAnywhere)
+	bool HasInteractedBefore = false;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class USphereComponent* SmallSphereCollision;
 

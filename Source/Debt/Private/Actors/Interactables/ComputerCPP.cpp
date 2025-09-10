@@ -148,12 +148,20 @@ void AComputerCPP::GetWidget()
 
 void AComputerCPP::OpenTheComputer()
 {
-	ComputerScreenWidget->OpenVideo();
+	if (ComputerScreenWidget)
+	{
+		ComputerScreenWidget->OpenVideo();
+	}
 }
+	
 
 void AComputerCPP::CloseTheComputer()
 {
-	ComputerScreenWidget->CloseVideo();
+	if (ComputerScreenWidget)
+	{
+		ComputerScreenWidget->CloseVideo();
+	}
+	
 }
 
 void AComputerCPP::Interact_Implementation()
@@ -164,11 +172,14 @@ void AComputerCPP::Interact_Implementation()
 		{
 			OpenTheComputer();
 
+			IsComputerOpen = true;
 			FlipFlopVariable = false;
+			
 		}
 		else
 		{
 			CloseTheComputer();
+			IsComputerOpen = false;
 			FlipFlopVariable = true;
 		}
 	}

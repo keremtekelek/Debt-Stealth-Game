@@ -34,6 +34,9 @@ public:
 
 	//VARIABLES!!
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room")
+	FName RoomName;
+
 	UPROPERTY(VisibleAnywhere)
 	bool CanInteract;
 
@@ -42,6 +45,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	bool HasInteractedBefore = false;
+
+	UPROPERTY(VisibleAnywhere)
+	bool IsCoffeeMachineCrashed = false;
 
 	UPROPERTY(EditAnywhere)
 	float ErrorSoundVolume = 1.f;

@@ -46,6 +46,7 @@ void ALightSwitchCPP::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UE_LOG(LogTemp, Warning, TEXT("Light Open?: %s"), IsLightOpen ? TEXT("true") : TEXT("false"));
 }
 
 void ALightSwitchCPP::OnBigBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
