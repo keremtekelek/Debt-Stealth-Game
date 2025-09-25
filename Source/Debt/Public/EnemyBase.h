@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
 #include "TimerManager.h"
+#include "DialogueManager/DialogueSystemCPP.h"
 #include "EnemyBase.generated.h"
 
 
@@ -67,15 +68,11 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	FTimerHandle SendRoomNameHandler;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite)
+	UDialogueSystemCPP* DialogueSystemComponent;
 	
-
-
-
-
-
 	//FUNCTIONS!!!
-
-	
 
 	virtual APatrolRoute* GetPatrolRoute_Implementation() const override;
 

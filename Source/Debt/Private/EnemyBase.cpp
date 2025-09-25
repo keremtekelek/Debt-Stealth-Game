@@ -24,6 +24,13 @@ AEnemyBase::AEnemyBase()
 			WidgetComp->SetWidgetClass((WidgetClass.Class));
 		}
 	}
+
+	
+	
+		DialogueSystemComponent = CreateDefaultSubobject<UDialogueSystemCPP>(TEXT("DialogueSystemComponent"));
+	
+	
+	
 }
 
 void AEnemyBase::BeginPlay()
@@ -31,6 +38,15 @@ void AEnemyBase::BeginPlay()
 	Super::BeginPlay();
 
 	WidgetComp->InitWidget();
+
+	if (DialogueSystemComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue System Component is valid!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Dialogue System Component is NOT valid!"));
+	}
 	
 	
 	GetWorld()->GetTimerManager().SetTimer(DelayHandler, this, &AEnemyBase::GetProperties, 2.f, false);

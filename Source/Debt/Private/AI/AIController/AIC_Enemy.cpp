@@ -301,7 +301,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     {
                         if (!LightSwitch->IsLightOpen)
                         {
-                            UE_LOG(LogTemp, Warning, TEXT("Light Open?: %s"), LightSwitch->IsLightOpen ? TEXT("true") : TEXT("false"));
+                            //UE_LOG(LogTemp, Warning, TEXT("Light Open?: %s"), LightSwitch->IsLightOpen ? TEXT("true") : TEXT("false"));
 
                             FName RoomName = LightSwitch->RoomName;
                             SetSuspectedObject(ESuspectedObject::Light);
@@ -355,9 +355,15 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
             {
                 BlackboardComp->SetValueAsBool(FName("IsPlayerVisible"), false);
 
-                //Prediction 
-                UAISense_Prediction::RequestControllerPredictionEvent(this, Actor, 1.f);
-                
+                //Prediction (Doesn't Work!)
+                //UAISense_Prediction::RequestControllerPredictionEvent(this, Actor, 1.f);
+
+                FVector PredictedLocation;
+                float PredictionTime = 1.f;
+
+                PredictedLocation = PlayerCharacter->GetActorLocation() + (PlayerCharacter->GetVelocity() * PredictionTime);
+
+                BlackboardComp->SetValueAsVector(FName("PredictedLocation"), PredictedLocation);
             }
 
             if (Actor->ActorHasTag("ThrowableRock"))
@@ -432,7 +438,7 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
         }
     }
 
-    //Prediction Sense
+    //Prediction Sense(Doesn't Work)
    
     if (Stimulus.Type == SensePredictionID)
     {
@@ -441,19 +447,27 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
             FVector PredictedLocation = Stimulus.StimulusLocation;
             FVector PlayerCharacterLoc;
 
+            UE_LOG(LogTemp, Warning, TEXT("Predited Vector: %s"), *PredictedLocation.ToString());
+            UE_LOG(LogTemp, Warning, TEXT("Character Vector: %s"), *PlayerCharacter->GetActorLocation().ToString());
+
             if (IsValid(PlayerCharacter))
             {
                 PlayerCharacterLoc = PlayerCharacter->GetActorLocation();
-
                 PredictedLocation.Z = PlayerCharacterLoc.Z;
+
+                UE_LOG(LogTemp,Warning,TEXT("PlayerCharacter is valid"))
 
                 DrawDebugSphere(GetWorld(), PredictedLocation, 30.f, 18.f, FColor::Red, false, 7.f, 0.f, 0.3f);
                 BlackboardComp->SetValueAsVector(FName("PredictedLocation"), PredictedLocation);
             }
+            else
+            {
+                UE_LOG(LogTemp,Warning,TEXT("PlayerCharacter is NOT valid"))
+            }
         }
         else
         {
-            
+            UE_LOG(LogTemp,Warning,TEXT("Sense Prediction didnt work!"))
         }
     }
 }
@@ -667,7 +681,7 @@ void AAIC_Enemy::GetEnemyAndWidget()
 
 void AAIC_Enemy::PlayerSawOrLostConfirmed(FString TypeSawOrLost, bool ChangeItTrueOrFalse)
 {
-    UE_LOG(LogTemp, Warning, TEXT("PlayerSawOrLostConfirmed Function is working!"))
+    //UE_LOG(LogTemp, Warning, TEXT("PlayerSawOrLostConfirmed Function is working!"))
 
     FString SightType = TypeSawOrLost.ToLower();
     bool SightBool = ChangeItTrueOrFalse;
@@ -889,7 +903,7 @@ void AAIC_Enemy::SetEnemySitutationAs(EEnemySitutation NewSitutation)
 
 
 
-//Handling EnemyAlarmLevel Fuctions
+//Handling EnemyAlarmLevel Functions
 
 EEnemy_AlarmLevel AAIC_Enemy::GetEnemyAlarmLevel() const
 {

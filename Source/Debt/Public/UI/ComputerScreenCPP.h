@@ -1,8 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/Image.h"
-#include "Components/CanvasPanel.h"
 #include "ComputerScreenCPP.generated.h"
 
 /**
