@@ -12,6 +12,7 @@ AMainCharacter::AMainCharacter()
 	static ConstructorHelpers::FObjectFinder<UInputAction> SprintAction(TEXT("/Game/Input/Actions/IA_Sprint")); //Getting IA_Sprint and IA_Crouch
 	static ConstructorHelpers::FObjectFinder<UInputAction> CrouchAction(TEXT("/Game/Input/Actions/IA_Crouch"));
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractAction(TEXT("/Game/Input/Actions/IA_Interact"));
+	//static ConstructorHelpers::FObjectFinder<UInputAction> NightVisionAction(TEXT("/Game/Input/Actions/IA_NightVision"));
 
 	if (SprintAction.Succeeded())			//If it succeeds, equalizing the SprintAction with input actions
 	{
@@ -21,6 +22,7 @@ AMainCharacter::AMainCharacter()
 	{
 		IA_Sprint = nullptr;
 	}
+	
 	if (CrouchAction.Succeeded())
 	{
 		IA_Crouch = CrouchAction.Object;
@@ -29,6 +31,7 @@ AMainCharacter::AMainCharacter()
 	{
 		IA_Crouch = nullptr;
 	}
+	
 	if (InteractAction.Succeeded())
 	{
 		IA_Interact = InteractAction.Object;
@@ -37,6 +40,19 @@ AMainCharacter::AMainCharacter()
 	{
 		IA_Interact = nullptr;
 	}
+
+	/*
+	* if (NightVisionAction.Succeeded())
+	{
+		IA_NightVision = NightVisionAction.Object;
+	}
+	else
+	{
+		IA_NightVision = nullptr;
+	}
+	 */
+	
+	
 	
 }
 
@@ -77,6 +93,14 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		{
 			EnhancedInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &AMainCharacter::IA_INTERACT_STARTED);
 		}
+		/*
+		 *
+		* if (IA_NightVision)
+		{
+			EnhancedInputComponent->BindAction(IA_NightVision, ETriggerEvent::Started, this, &AMainCharacter::IA_NIGHT_VISION_STARTED);
+		}
+		 */
+		
 	}
 }
 
@@ -140,6 +164,24 @@ void AMainCharacter::IA_INTERACT_STARTED(const FInputActionInstance& Instance)
 	}
 }
 
+/*
+* void AMainCharacter::IA_NIGHT_VISION_STARTED(const FInputActionInstance& Instance)
+{
+	if(IsNightVisionOn)
+	{
+		IsNightVisionOn = false;
+	}
+	
+	else
+	{
+		
+		IsNightVisionOn = true;
+	}
+	
+	
+	
+}
+ */
 
 
 

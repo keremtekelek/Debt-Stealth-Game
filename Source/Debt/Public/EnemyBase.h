@@ -71,6 +71,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite)
 	UDialogueSystemCPP* DialogueSystemComponent;
+
+	
 	
 	//FUNCTIONS!!!
 

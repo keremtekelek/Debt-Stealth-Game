@@ -49,6 +49,8 @@ void UBTTask_DialogueSystem::SetUpTheDialogue()
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, DialogueVoice, DialogueLocation, DialogueSoundVolume, 1.f, 0.f);
 		}
+
+
 		
 
 		

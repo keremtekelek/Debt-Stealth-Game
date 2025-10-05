@@ -37,6 +37,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* IA_Interact;
 
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	//UInputAction* IA_NightVision;
+
 
 
 
@@ -61,6 +64,9 @@ public:
 	UPROPERTY()
 	UCharacterMovementComponent* CharacterMovementComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsNightVisionOn=false;
+
 	
 
 
@@ -75,4 +81,10 @@ public:
 
 	UFUNCTION()
 	void IA_INTERACT_STARTED(const FInputActionInstance& Instance);
+
+	/*
+	* UFUNCTION()
+	void IA_NIGHT_VISION_STARTED(const FInputActionInstance& Instance);
+	 */
+	
 };

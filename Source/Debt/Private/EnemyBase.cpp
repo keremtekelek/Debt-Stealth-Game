@@ -12,7 +12,7 @@ AEnemyBase::AEnemyBase()
 	if (WidgetComp)
 	{
 		WidgetComp->SetupAttachment(GetMesh());
-		WidgetComp->SetWidgetSpace(EWidgetSpace::World);
+		WidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
 		WidgetComp->SetDrawSize(FVector2D(100, 100));
 		WidgetComp->SetRelativeLocation(FVector(0, 10, 200));
 		WidgetComp->SetVisibility(false);
@@ -62,7 +62,8 @@ void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (IsValid(WidgetComp) && IsValid(PlayerCharacter) && IsValid(CameraManager))
+	/**
+	* if (IsValid(WidgetComp) && IsValid(PlayerCharacter) && IsValid(CameraManager))
 	{
 		FRotator LookAtRotation;
 		FVector TargetLocation;
@@ -75,10 +76,33 @@ void AEnemyBase::Tick(float DeltaTime)
 
 		WidgetComp->SetWorldRotation(LookAtRotation);
 	}
+	 */
 
+	if (IsValid(WidgetComp) && IsValid(PlayerCharacter) && IsValid(CameraManager))
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Can Widget Seeable?:  %s"), ( CanWidgetBeSeen ? TEXT("true"): TEXT("false") ));
+		
+		FVector TargetLocation;
+		FVector StartLocation;
+		FHitResult HitResult;
+
+		StartLocation = WidgetComp->GetComponentLocation();
+		TargetLocation = CameraManager->GetCameraLocation();
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this); 
+		Params.AddIgnoredActor(PlayerCharacter);
+
+		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, TargetLocation, ECC_Visibility,Params);
+
+		if (bHit)
+		{
+			WidgetComp->SetVisibility(false);
+			WidgetComp->SetHiddenInGame(true);
+		}
+	}
+	
 	GetWorld()->GetTimerManager().SetTimer(SendRoomNameHandler, this, &AEnemyBase::CallSendRoomName, 0.3f, false);
-
-
 }
 
 

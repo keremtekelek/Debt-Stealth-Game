@@ -229,6 +229,12 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     {
                         if (Book->IsHidden())
                         {
+                            SetEnemySitutationAs(EEnemySitutation::Investigate);
+                            SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
+                            SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Saw);
+
+                            BlackboardComp->SetValueAsVector(FName("Investigation_Location"), Book->GetActorLocation());
+                            
                             FName RoomName = Book->RoomName;
                             SetSuspectedObject(ESuspectedObject::Book);
 
@@ -256,6 +262,12 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     {
                         if (CoffeeMachine->IsCoffeeMachineCrashed)
                         {
+                            SetEnemySitutationAs(EEnemySitutation::Investigate);
+                            SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
+                            SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Saw);
+
+                            BlackboardComp->SetValueAsVector(FName("Investigation_Location"), CoffeeMachine->GetActorLocation());
+                            
                             FName RoomName = CoffeeMachine->RoomName;
                             SetSuspectedObject(ESuspectedObject::CoffeeMachine);
 
@@ -277,6 +289,12 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                     {
                         if (Computer->IsComputerOpen)
                         {
+                            SetEnemySitutationAs(EEnemySitutation::Investigate);
+                            SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
+                            SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Saw);
+
+                            BlackboardComp->SetValueAsVector(FName("Investigation_Location"), Computer->GetActorLocation());
+                            
                             FName RoomName = Computer->RoomName;
                             SetSuspectedObject(ESuspectedObject::Computer);
 
@@ -302,7 +320,12 @@ void AAIC_Enemy::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
                         if (!LightSwitch->IsLightOpen)
                         {
                             //UE_LOG(LogTemp, Warning, TEXT("Light Open?: %s"), LightSwitch->IsLightOpen ? TEXT("true") : TEXT("false"));
+                            SetEnemySitutationAs(EEnemySitutation::Investigate);
+                            SetEnemyAlarmLevelAs(EEnemy_AlarmLevel::None);
+                            SetEnemyInvestigateReasonAs(EEnemy_SuspiciousReason::Saw);
 
+                            BlackboardComp->SetValueAsVector(FName("Investigation_Location"), LightSwitch->GetActorLocation());
+                            
                             FName RoomName = LightSwitch->RoomName;
                             SetSuspectedObject(ESuspectedObject::Light);
 
@@ -573,18 +596,19 @@ void AAIC_Enemy::OpenOrCloseWidget(FString TypeQuestionOrExclamation, FString Ty
     FString WhichWidget = TypeQuestionOrExclamation.ToLower();
     
     
+    
     if (WhichWidget == "question")
     {
         if (TypeOpenOrClose == "open")
         {
             if (SuspiciousMeter_WidgetComponent->IsVisible())
             {
-                SuspiciousMeter_WidgetComponent->SetVisibility(false);
-                SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
+               SuspiciousMeter_WidgetComponent->SetVisibility(false);
+               SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
 
                 if (SuspiciousMeter_Widget->GetVisibility() == ESlateVisibility::Visible)
                 {
-                    SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
+                   SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
                     if (SuspiciousMeter_Widget->ExclamationMarkImage->GetVisibility() == ESlateVisibility::Visible)
                     {
                         SuspiciousMeter_Widget->ExclamationMarkImage->SetVisibility(ESlateVisibility::Hidden);
@@ -596,6 +620,7 @@ void AAIC_Enemy::OpenOrCloseWidget(FString TypeQuestionOrExclamation, FString Ty
             SuspiciousMeter_WidgetComponent->SetHiddenInGame(false);
             SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Visible);
             SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Visible);
+            
         }
         else if (TypeOpenOrClose == "close")
         {
@@ -609,36 +634,27 @@ void AAIC_Enemy::OpenOrCloseWidget(FString TypeQuestionOrExclamation, FString Ty
     {
         if (TypeOpenOrClose == "open")
         {
-            if (SuspiciousMeter_WidgetComponent->IsVisible())
-            {
-                SuspiciousMeter_WidgetComponent->SetVisibility(false);
-                SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
-
-                if (SuspiciousMeter_Widget->GetVisibility() == ESlateVisibility::Visible)
+                 if (SuspiciousMeter_WidgetComponent->IsVisible())
                 {
-                    SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
-                    if (SuspiciousMeter_Widget->Question_Mark->GetVisibility() == ESlateVisibility::Visible)
-                    {
-                        SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Hidden);
-                    }
-                    
+                    SuspiciousMeter_WidgetComponent->SetVisibility(false);
+                    SuspiciousMeter_WidgetComponent->SetHiddenInGame(true);
 
-                    //else
-                    //{
-                    //    return;
-                    //}
+                    if (SuspiciousMeter_Widget->GetVisibility() == ESlateVisibility::Visible)
+                    {
+                        SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Hidden);
+                        if (SuspiciousMeter_Widget->Question_Mark->GetVisibility() == ESlateVisibility::Visible)
+                        {
+                            SuspiciousMeter_Widget->Question_Mark->SetVisibility(ESlateVisibility::Hidden);
+                        }
+                    }
                 }
-                //else
-                //{
-                 //   return;
-                //}
-            }
             
 
-            SuspiciousMeter_WidgetComponent->SetVisibility(true);
-            SuspiciousMeter_WidgetComponent->SetHiddenInGame(false);
-            SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Visible);
-            SuspiciousMeter_Widget->ExclamationMarkImage->SetVisibility(ESlateVisibility::Visible);
+                SuspiciousMeter_WidgetComponent->SetVisibility(true);
+                SuspiciousMeter_WidgetComponent->SetHiddenInGame(false);
+                SuspiciousMeter_Widget->SetVisibility(ESlateVisibility::Visible);
+                SuspiciousMeter_Widget->ExclamationMarkImage->SetVisibility(ESlateVisibility::Visible);
+            
         }
         else if (TypeOpenOrClose == "close")
         {
