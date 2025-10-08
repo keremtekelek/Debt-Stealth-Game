@@ -67,6 +67,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsNightVisionOn=false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool RockThrowing = false;
+
 	
 
 

@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/DialogueWidgetCPP.h"
+#include "CameraManager/CameraManagerCPP.h"
 #include "PlayerControllerCPP.generated.h"
 
 /**
@@ -28,6 +29,9 @@ public:
 
 	UPROPERTY()
 	TSubclassOf<UDialogueWidgetCPP> DialogueWidgetClass;
+
+	UPROPERTY()
+	ACameraManagerCPP* Player_CameraManager;
 };
 
 

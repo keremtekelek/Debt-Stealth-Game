@@ -9,6 +9,9 @@ APlayerControllerCPP::APlayerControllerCPP()
 	{
 		DialogueWidgetClass = WidgetBPClass.Class;
 	}
+
+	// Adjusting Default Player Camera Manager Class
+	PlayerCameraManagerClass = ACameraManagerCPP::StaticClass();
 	
 }
 
