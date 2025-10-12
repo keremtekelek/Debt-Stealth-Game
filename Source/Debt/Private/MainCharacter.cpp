@@ -9,11 +9,29 @@ AMainCharacter::AMainCharacter()
 	bIsCrouchingg = false; //Setting the Variables default values 
 	bIsSprintingg = false;
 
+	Camera_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera_SpringArm"));
+	Camera_SpringArm->SetupAttachment(RootComponent);
+	
+	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
+	PlayerCamera->SetupAttachment(Camera_SpringArm);
+
+
+
+
+
+
+
+
+
+	
+	//**INPUTS
 	static ConstructorHelpers::FObjectFinder<UInputAction> SprintAction(TEXT("/Game/Input/Actions/IA_Sprint")); //Getting IA_Sprint and IA_Crouch
 	static ConstructorHelpers::FObjectFinder<UInputAction> CrouchAction(TEXT("/Game/Input/Actions/IA_Crouch"));
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractAction(TEXT("/Game/Input/Actions/IA_Interact"));
 	//static ConstructorHelpers::FObjectFinder<UInputAction> NightVisionAction(TEXT("/Game/Input/Actions/IA_NightVision"));
 
+
+	
 	if (SprintAction.Succeeded())			//If it succeeds, equalizing the SprintAction with input actions
 	{
 		IA_Sprint = SprintAction.Object;
@@ -51,8 +69,6 @@ AMainCharacter::AMainCharacter()
 		IA_NightVision = nullptr;
 	}
 	 */
-	
-	
 	
 }
 

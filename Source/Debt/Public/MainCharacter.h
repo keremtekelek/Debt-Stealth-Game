@@ -11,6 +11,8 @@
 #include "Perception/AISense_Sight.h"
 #include "Perception/AISightTargetInterface.h"
 #include "Enums/GlobalEnums.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Interfaces/Interface_Interaction.h"
 #include "MainCharacter.generated.h"
 
@@ -70,6 +72,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool RockThrowing = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCameraComponent* PlayerCamera;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	USpringArmComponent* Camera_SpringArm;
 	
 
 
